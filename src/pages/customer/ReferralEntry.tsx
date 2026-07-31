@@ -107,14 +107,25 @@ export default function ReferralEntry() {
 
         <div className="animate-fade-in-up mx-auto max-w-2xl text-center">
           <p className="text-sm text-gray-500">
-            Shared by <span className="font-medium text-gray-900">{referrer.company_name}</span>
+            Shared by{" "}
+            {selected ? (
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                className="font-medium text-brand-primary underline decoration-brand-primary/40 underline-offset-2"
+              >
+                {referrer.company_name}
+              </button>
+            ) : (
+              <span className="font-medium text-gray-900">{referrer.company_name}</span>
+            )}
           </p>
         </div>
 
         <div className="animate-fade-in-up mx-auto mt-6 max-w-2xl">
           <PartnerContactCard
-            partner={referrer}
-            categoryName={categoryNameById.get(referrer.category_id)}
+            partner={selected ?? referrer}
+            categoryName={categoryNameById.get((selected ?? referrer).category_id)}
           />
         </div>
 
@@ -124,15 +135,6 @@ export default function ReferralEntry() {
             Browse the other businesses {referrer.company_name} works with.
           </p>
         </div>
-
-        {selected && (
-          <div className="animate-fade-in-up mx-auto mt-6 max-w-2xl">
-            <PartnerContactCard
-              partner={selected}
-              categoryName={categoryNameById.get(selected.category_id)}
-            />
-          </div>
-        )}
 
         <div className="mx-auto mt-8 max-w-2xl">
           <div className="relative">
