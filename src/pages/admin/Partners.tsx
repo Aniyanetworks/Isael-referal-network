@@ -5,8 +5,11 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../../components/ui/DataTable";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
+import { IconButton } from "../../components/ui/IconButton";
+import { PencilIcon, PowerIcon, SearchIcon, TrashIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Modal } from "../../components/ui/Modal";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { PartnerForm } from "../../features/partners/PartnerForm";
 import { getCategories } from "../../services/categories.service";
 import {
@@ -105,7 +108,19 @@ export default function AdminPartners() {
   const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
 
   const columns: DataTableColumn<Partner>[] = [
-    { header: "Company", accessor: (row) => row.company_name },
+    {
+      header: "Company",
+      accessor: (row) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={row.logo_url}
+            alt=""
+            className="h-8 w-8 shrink-0 rounded-full border border-gray-200 object-cover"
+          />
+          <span className="font-medium text-gray-900">{row.company_name}</span>
+        </div>
+      ),
+    },
     { header: "Category", accessor: (row) => categoryNameById.get(row.category_id) ?? "-" },
     { header: "Contact", accessor: (row) => row.partner_name },
     { header: "Email", accessor: (row) => row.email },
@@ -113,39 +128,39 @@ export default function AdminPartners() {
       header: "Status",
       accessor: (row) => (
         <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            row.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            row.status === "active"
+              ? "bg-brand-accent/20 text-green-700"
+              : "bg-gray-100 text-gray-500"
           }`}
         >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              row.status === "active" ? "bg-green-600" : "bg-gray-400"
+            }`}
+          />
           {row.status}
         </span>
       ),
     },
     {
       header: "Actions",
+      className: "text-right",
       accessor: (row) => (
-        <div className="flex flex-wrap gap-3">
-          <button
-            type="button"
-            className="text-sm font-medium text-gray-700 underline"
-            onClick={() => openEditForm(row)}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            className="text-sm font-medium text-gray-700 underline"
+        <div className="flex justify-end gap-1">
+          <IconButton icon={<PencilIcon className="h-4 w-4" />} label="Edit" onClick={() => openEditForm(row)} />
+          <IconButton
+            icon={<PowerIcon className="h-4 w-4" />}
+            label={row.status === "active" ? "Deactivate" : "Activate"}
+            variant={row.status === "active" ? "default" : "success"}
             onClick={() => toggleStatusMutation.mutate(row.id)}
-          >
-            {row.status === "active" ? "Deactivate" : "Activate"}
-          </button>
-          <button
-            type="button"
-            className="text-sm font-medium text-red-600 underline"
+          />
+          <IconButton
+            icon={<TrashIcon className="h-4 w-4" />}
+            label="Delete"
+            variant="danger"
             onClick={() => setDeletingPartner(row)}
-          >
-            Delete
-          </button>
+          />
         </div>
       ),
     },
@@ -162,45 +177,44 @@ export default function AdminPartners() {
         <button
           type="button"
           onClick={openCreateForm}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary"
         >
           Add Partner
         </button>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-3">
-        <input
-          type="text"
-          placeholder="Search by company, contact, or email"
-          className="form-input max-w-xs"
-          onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+        <div className="relative max-w-xs flex-1">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search by company, contact, or email"
+            className="form-input max-w-xs pl-9"
+            onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+          />
+        </div>
+        <SearchableSelect
+          className="w-52"
+          value={filters.category_id ?? ""}
+          onChange={(value) => setFilters((f) => ({ ...f, category_id: value || undefined }))}
+          placeholder="All categories"
+          clearLabel="All categories"
+          searchPlaceholder="Search categories..."
+          options={categories.map((c) => ({ value: c.id, label: c.name }))}
         />
-        <select
-          className="form-input max-w-xs"
-          onChange={(e) =>
-            setFilters((f) => ({ ...f, category_id: e.target.value || undefined }))
+        <SearchableSelect
+          className="w-44"
+          value={filters.status ?? ""}
+          onChange={(value) =>
+            setFilters((f) => ({ ...f, status: (value || undefined) as PartnerFilters["status"] }))
           }
-        >
-          <option value="">All categories</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-        <select
-          className="form-input max-w-xs"
-          onChange={(e) =>
-            setFilters((f) => ({
-              ...f,
-              status: (e.target.value || undefined) as PartnerFilters["status"],
-            }))
-          }
-        >
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
+          placeholder="All statuses"
+          clearLabel="All statuses"
+          options={[
+            { value: "active", label: "Active" },
+            { value: "inactive", label: "Inactive" },
+          ]}
+        />
       </div>
 
       <div className="mt-6">

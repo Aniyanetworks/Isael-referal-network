@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabaseClient";
 import { getMyProfile } from "../services/profiles.service";
@@ -19,33 +19,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const mountedRef = useRef(true);
+
+  async function applySession(nextSession: Session | null) {
+    setSession(nextSession);
+    const nextProfile = nextSession ? await getMyProfile(nextSession.user.id) : null;
+    if (!mountedRef.current) return;
+    setProfile(nextProfile);
+    setLoading(false);
+  }
 
   useEffect(() => {
-    let active = true;
-
-    async function applySession(nextSession: Session | null) {
-      setSession(nextSession);
-      const nextProfile = nextSession ? await getMyProfile(nextSession.user.id) : null;
-      if (!active) return;
-      setProfile(nextProfile);
-      setLoading(false);
-    }
-
-    supabase.auth.getSession().then(({ data }) => applySession(data.session));
+    mountedRef.current = true;
+    void supabase.auth.getSession().then(({ data }) => applySession(data.session));
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      applySession(nextSession);
+      void applySession(nextSession);
     });
 
     return () => {
-      active = false;
+      mountedRef.current = false;
       listener.subscription.unsubscribe();
     };
   }, []);
 
   async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    // Wait for session + profile to actually land in state before returning,
+    // so a caller that navigates right after this resolves doesn't race
+    // RequireAuth (which would otherwise see profile still null and bounce
+    // back to /login on the first attempt).
+    setLoading(true);
+    await applySession(data.session);
   }
 
   async function signUp(email: string, password: string) {

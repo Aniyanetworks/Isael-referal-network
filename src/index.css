@@ -1,8 +1,69 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-primary: #079992;
+  --color-brand-secondary: #38ada9;
+  --color-brand-accent: #78e08f;
+  --font-sans: "Lato", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  button:not(:disabled),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [type="button"]:disabled,
+  [type="submit"]:disabled {
+    cursor: not-allowed;
+  }
+}
+
 @layer utilities {
   .form-input {
     @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm;
   }
 }
 
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes float-blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -20px) scale(1.05);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out both;
+}
+
+.animate-float-blob {
+  animation: float-blob 10s ease-in-out infinite;
+}

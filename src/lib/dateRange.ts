@@ -20,11 +20,13 @@ export function computeDateRange(
   if (preset === "7d") {
     const start = new Date(now);
     start.setDate(start.getDate() - 7);
+    start.setHours(0, 0, 0, 0);
     return { from: start.toISOString() };
   }
   if (preset === "30d") {
     const start = new Date(now);
     start.setDate(start.getDate() - 30);
+    start.setHours(0, 0, 0, 0);
     return { from: start.toISOString() };
   }
 

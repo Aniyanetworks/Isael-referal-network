@@ -1,7 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import type { ReactNode } from "react";
 import { z } from "zod";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import type { Category, Partner, PartnerInput } from "../../types";
 
 const partnerSchema = z.object({
@@ -58,6 +59,7 @@ export function PartnerForm({
 }: PartnerFormProps) {
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<PartnerFormValues>({
@@ -88,7 +90,7 @@ export function PartnerForm({
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(submit)} noValidate>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Company name" error={errors.company_name?.message}>
           <input className="form-input" {...register("company_name")} />
         </Field>
@@ -108,20 +110,36 @@ export function PartnerForm({
           <input className="form-input" {...register("address")} />
         </Field>
         <Field label="Category" error={errors.category_id?.message}>
-          <select className="form-input" {...register("category_id")}>
-            <option value="">Select a category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+          <Controller
+            control={control}
+            name="category_id"
+            render={({ field }) => (
+              <SearchableSelect
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Select a category"
+                searchPlaceholder="Search categories..."
+                options={categories.map((category) => ({ value: category.id, label: category.name }))}
+              />
+            )}
+          />
         </Field>
         <Field label="Status">
-          <select className="form-input" {...register("status")}>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+          <Controller
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <SearchableSelect
+                value={field.value}
+                onChange={(value) => field.onChange(value as PartnerFormValues["status"])}
+                placeholder="Select status"
+                options={[
+                  { value: "active", label: "Active" },
+                  { value: "inactive", label: "Inactive" },
+                ]}
+              />
+            )}
+          />
         </Field>
       </div>
 
@@ -132,7 +150,7 @@ export function PartnerForm({
         <input className="form-input" {...register("logo_url")} />
       </Field>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field label="Facebook">
           <input className="form-input" {...register("facebook")} />
         </Field>
@@ -155,7 +173,7 @@ export function PartnerForm({
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-50"
         >
           {submitting ? "Saving..." : submitLabel}
         </button>

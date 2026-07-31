@@ -1,8 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "sonner";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
+import { SearchIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { ReferralLinkActions } from "../../features/referralLinks/ReferralLinkActions";
 import { useAuth } from "../../hooks/useAuth";
 import { getCategories } from "../../services/categories.service";
@@ -18,6 +21,8 @@ export default function PartnerDirectory() {
   const { profile } = useAuth();
   const ownPartnerId = profile?.partner_id ?? "";
   const queryClient = useQueryClient();
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [search, setSearch] = useState("");
 
   const partnersQuery = useQuery({
     queryKey: ["directory-partners"],
@@ -51,26 +56,62 @@ export default function PartnerDirectory() {
   const isLoading = partnersQuery.isLoading || categoriesQuery.isLoading || ownLinksQuery.isLoading;
   const isError = partnersQuery.isError || categoriesQuery.isError || ownLinksQuery.isError;
 
-  const categoryNameById = new Map((categoriesQuery.data ?? []).map((c) => [c.id, c.name]));
+  const categories = categoriesQuery.data ?? [];
+  const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
   const linkByTargetId = new Map(
     (ownLinksQuery.data ?? []).map((link) => [link.target_partner_id, link])
   );
   const allPartners = partnersQuery.data ?? [];
   const ownPartner = allPartners.find((p) => p.id === ownPartnerId);
-  const others = allPartners.filter((p) => p.id !== ownPartnerId);
+  const searchTerm = search.trim().toLowerCase();
+  const others = allPartners
+    .filter((p) => p.id !== ownPartnerId)
+    .filter((p) => !categoryFilter || p.category_id === categoryFilter)
+    .filter((p) => {
+      if (!searchTerm) return true;
+      const categoryName = categoryNameById.get(p.category_id) ?? "";
+      return `${p.company_name} ${categoryName}`.toLowerCase().includes(searchTerm);
+    });
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-gray-900">Referral Directory</h1>
-      <p className="mt-1 text-sm text-gray-500">
-        Generate a trackable link and QR code for any partner to share with your customers.
-      </p>
+      <div>
+        <h1 className="text-xl font-semibold text-gray-900">Referral Directory</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Generate a trackable link and QR code for any partner to share with your customers.
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <div className="relative max-w-xs flex-1">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by partner or category"
+            className="form-input max-w-xs pl-9"
+          />
+        </div>
+        <SearchableSelect
+          className="w-52"
+          value={categoryFilter}
+          onChange={setCategoryFilter}
+          placeholder="All categories"
+          clearLabel="All categories"
+          searchPlaceholder="Search categories..."
+          options={categories.map((c) => ({ value: c.id, label: c.name }))}
+        />
+      </div>
 
       <div className="mt-6">
         {isLoading && <LoadingSpinner label="Loading directory..." />}
         {isError && <ErrorState onRetry={() => void partnersQuery.refetch()} />}
         {!isLoading && !isError && others.length === 0 && (
-          <EmptyState title="No other partners yet" />
+          <EmptyState
+            title={search || categoryFilter ? "No partners match your search" : "No other partners yet"}
+            description={search || categoryFilter ? "Try a different search term or category." : undefined}
+          />
         )}
         {!isLoading && !isError && others.length > 0 && (
           <div className="space-y-4">
@@ -79,13 +120,20 @@ export default function PartnerDirectory() {
               return (
                 <div
                   key={partner.id}
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 p-4"
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{partner.company_name}</p>
-                    <p className="text-xs text-gray-400">
-                      {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={partner.logo_url}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-full border border-gray-200 object-cover"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{partner.company_name}</p>
+                      <p className="text-xs text-gray-400">
+                        {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
+                      </p>
+                    </div>
                   </div>
                   {existingLink ? (
                     <ReferralLinkActions
@@ -109,7 +157,7 @@ export default function PartnerDirectory() {
                           target_partner_id: partner.id,
                         })
                       }
-                      className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                      className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-50"
                     >
                       Generate Link
                     </button>

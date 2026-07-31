@@ -8,6 +8,8 @@ import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../../components/ui/DataTable";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
+import { IconButton } from "../../components/ui/IconButton";
+import { PencilIcon, TrashIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Modal } from "../../components/ui/Modal";
 import {
@@ -103,26 +105,25 @@ export default function AdminCategories() {
   }
 
   const columns: DataTableColumn<Category>[] = [
-    { header: "Name", accessor: (row) => row.name },
-    { header: "Slug", accessor: (row) => row.slug },
+    { header: "Name", accessor: (row) => <span className="font-medium text-gray-900">{row.name}</span> },
+    {
+      header: "Slug",
+      accessor: (row) => (
+        <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">{row.slug}</code>
+      ),
+    },
     {
       header: "Actions",
+      className: "text-right",
       accessor: (row) => (
-        <div className="flex gap-3">
-          <button
-            type="button"
-            className="text-sm font-medium text-gray-700 underline"
-            onClick={() => openEditForm(row)}
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            className="text-sm font-medium text-red-600 underline"
+        <div className="flex justify-end gap-1">
+          <IconButton icon={<PencilIcon className="h-4 w-4" />} label="Edit" onClick={() => openEditForm(row)} />
+          <IconButton
+            icon={<TrashIcon className="h-4 w-4" />}
+            label="Delete"
+            variant="danger"
             onClick={() => setDeletingCategory(row)}
-          >
-            Delete
-          </button>
+          />
         </div>
       ),
     },
@@ -135,7 +136,7 @@ export default function AdminCategories() {
         <button
           type="button"
           onClick={openCreateForm}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white"
+          className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary"
         >
           Add Category
         </button>
@@ -168,7 +169,7 @@ export default function AdminCategories() {
             <input
               id="name"
               type="text"
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              className="form-input mt-1 transition-colors focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
               {...register("name")}
             />
             {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
@@ -184,7 +185,7 @@ export default function AdminCategories() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-50"
             >
               {editingCategory ? "Save changes" : "Add Category"}
             </button>

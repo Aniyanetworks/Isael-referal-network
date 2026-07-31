@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { DataTable, type DataTableColumn } from "../../components/ui/DataTable";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
+import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { getPartners } from "../../services/partners.service";
 import {
   getAllPartnerProfiles,
@@ -48,6 +50,59 @@ export default function AdminPartnerAccounts() {
     return selections[profile.id] ?? profile.partner_id ?? "";
   }
 
+  const columns: DataTableColumn<Profile>[] = [
+    { header: "Email", accessor: (row) => <span className="font-medium text-gray-900">{row.email}</span> },
+    {
+      header: "Signed up",
+      accessor: (row) => new Date(row.created_at).toLocaleDateString(),
+    },
+    {
+      header: "Status",
+      accessor: (row) => (
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            row.partner_id ? "bg-brand-accent/20 text-green-700" : "bg-amber-100 text-amber-700"
+          }`}
+        >
+          <span className={`h-1.5 w-1.5 rounded-full ${row.partner_id ? "bg-green-600" : "bg-amber-500"}`} />
+          {row.partner_id ? "Linked" : "Pending"}
+        </span>
+      ),
+    },
+    {
+      header: "Linked business",
+      className: "min-w-[14rem]",
+      accessor: (row) => (
+        <SearchableSelect
+          value={selectionFor(row)}
+          onChange={(value) => setSelections((prev) => ({ ...prev, [row.id]: value }))}
+          placeholder="Unlinked"
+          clearLabel="Unlinked"
+          searchPlaceholder="Search partners..."
+          options={partners.map((partner) => ({ value: partner.id, label: partner.company_name }))}
+        />
+      ),
+    },
+    {
+      header: "Actions",
+      className: "text-right",
+      accessor: (row) => {
+        const currentSelection = selectionFor(row);
+        const changed = currentSelection !== (row.partner_id ?? "");
+        return (
+          <button
+            type="button"
+            disabled={!changed || saveMutation.isPending}
+            onClick={() => saveMutation.mutate({ profileId: row.id, partnerId: currentSelection })}
+            className="rounded-md bg-brand-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-40"
+          >
+            Save
+          </button>
+        );
+      },
+    },
+  ];
+
   return (
     <div>
       <h1 className="text-xl font-semibold text-gray-900">Partner Accounts</h1>
@@ -66,76 +121,7 @@ export default function AdminPartnerAccounts() {
           />
         )}
         {!isLoading && !isError && profiles.length > 0 && (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Email</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Signed up</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Status</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Linked business</th>
-                  <th className="px-4 py-2 text-left font-medium text-gray-500">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {profiles.map((profile) => {
-                  const currentSelection = selectionFor(profile);
-                  const changed = currentSelection !== (profile.partner_id ?? "");
-                  const isLinked = Boolean(profile.partner_id);
-                  return (
-                    <tr key={profile.id}>
-                      <td className="px-4 py-3 text-gray-700">{profile.email}</td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {new Date(profile.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                            isLinked
-                              ? "bg-green-100 text-green-700"
-                              : "bg-amber-100 text-amber-700"
-                          }`}
-                        >
-                          {isLinked ? "Linked" : "Pending"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <select
-                          className="form-input"
-                          value={currentSelection}
-                          onChange={(e) =>
-                            setSelections((prev) => ({ ...prev, [profile.id]: e.target.value }))
-                          }
-                        >
-                          <option value="">Unlinked</option>
-                          {partners.map((partner) => (
-                            <option key={partner.id} value={partner.id}>
-                              {partner.company_name}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          type="button"
-                          disabled={!changed || saveMutation.isPending}
-                          onClick={() =>
-                            saveMutation.mutate({
-                              profileId: profile.id,
-                              partnerId: currentSelection,
-                            })
-                          }
-                          className="rounded-md bg-gray-900 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
-                        >
-                          Save
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <DataTable columns={columns} data={profiles} rowKey={(row) => row.id} />
         )}
       </div>
     </div>

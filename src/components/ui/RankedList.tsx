@@ -1,4 +1,4 @@
-const SERIES_BLUE = "#2a78d6";
+const SERIES_COLOR = "#079992";
 
 export interface RankedListRow {
   id: string;
@@ -15,7 +15,7 @@ interface RankedListProps {
 export function RankedList({ title, rows, emptyLabel = "No data yet." }: RankedListProps) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
-    <div className="rounded-lg border border-gray-200 p-4">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
       {rows.length === 0 ? (
         <p className="mt-3 text-xs text-gray-400">{emptyLabel}</p>
@@ -32,7 +32,7 @@ export function RankedList({ title, rows, emptyLabel = "No data yet." }: RankedL
                   className="h-1.5 rounded-full"
                   style={{
                     width: `${(row.value / max) * 100}%`,
-                    backgroundColor: SERIES_BLUE,
+                    backgroundColor: SERIES_COLOR,
                   }}
                 />
               </div>

@@ -14,25 +14,28 @@ interface DataTableProps<T> {
 
 export function DataTable<T>({ columns, data, rowKey }: DataTableProps<T>) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200">
-      <table className="min-w-full divide-y divide-gray-200 text-sm">
-        <thead className="bg-gray-50">
-          <tr>
+    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+      <table className="min-w-full divide-y divide-gray-100 text-sm">
+        <thead>
+          <tr className="bg-gray-50/80">
             {columns.map((col) => (
               <th
                 key={col.header}
-                className={`px-4 py-2 text-left font-medium text-gray-500 ${col.className ?? ""}`}
+                className={`whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 ${col.className ?? ""}`}
               >
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 bg-white">
+        <tbody className="divide-y divide-gray-100">
           {data.map((row) => (
-            <tr key={rowKey(row)}>
+            <tr key={rowKey(row)} className="transition-colors hover:bg-brand-primary/4">
               {columns.map((col) => (
-                <td key={col.header} className={`px-4 py-3 text-gray-700 ${col.className ?? ""}`}>
+                <td
+                  key={col.header}
+                  className={`px-4 py-3 align-middle text-gray-700 ${col.className ?? ""}`}
+                >
                   {col.accessor(row)}
                 </td>
               ))}

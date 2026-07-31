@@ -1,152 +1,61 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { ReferralLinkActions } from "../../features/referralLinks/ReferralLinkActions";
+import { buildPartnerReferralUrl } from "../../services/partnerReferrals.service";
+import { getCategories } from "../../services/categories.service";
 import { getPartners } from "../../services/partners.service";
-import {
-  buildReferralUrl,
-  getOrCreateReferralLink,
-  getReferralLinks,
-  regenerateReferralLink,
-} from "../../services/referralLinks.service";
 
-export default function AdminReferralLinks() {
-  const queryClient = useQueryClient();
-  const [referrerId, setReferrerId] = useState("");
-  const [targetId, setTargetId] = useState("");
-
+export default function AdminPartnerLinks() {
   const partnersQuery = useQuery({ queryKey: ["partners-all"], queryFn: () => getPartners() });
-  const linksQuery = useQuery({ queryKey: ["referralLinks"], queryFn: () => getReferralLinks() });
-
-  const generateMutation = useMutation({
-    mutationFn: getOrCreateReferralLink,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["referralLinks"] });
-      toast.success("Referral link ready");
-      setReferrerId("");
-      setTargetId("");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  const regenerateMutation = useMutation({
-    mutationFn: regenerateReferralLink,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["referralLinks"] });
-      toast.success("Referral link regenerated");
-    },
-    onError: (error: Error) => toast.error(error.message),
-  });
-
-  function handleGenerate() {
-    if (!referrerId || !targetId) {
-      toast.error("Pick a referrer and a target partner");
-      return;
-    }
-    if (referrerId === targetId) {
-      toast.error("Referrer and target must be different partners");
-      return;
-    }
-    generateMutation.mutate({ referrer_partner_id: referrerId, target_partner_id: targetId });
-  }
+  const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
 
   const partners = partnersQuery.data ?? [];
-  const partnerById = new Map(partners.map((p) => [p.id, p]));
-  const links = linksQuery.data ?? [];
+  const categoryNameById = new Map((categoriesQuery.data ?? []).map((c) => [c.id, c.name]));
 
-  const isLoading = partnersQuery.isLoading || linksQuery.isLoading;
-  const isError = partnersQuery.isError || linksQuery.isError;
+  const isLoading = partnersQuery.isLoading || categoriesQuery.isLoading;
+  const isError = partnersQuery.isError || categoriesQuery.isError;
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-gray-900">Referral Links</h1>
-
-      <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 p-4">
-        <div>
-          <label className="block text-xs font-medium text-gray-500">Referrer</label>
-          <select
-            className="form-input mt-1 w-56"
-            value={referrerId}
-            onChange={(e) => setReferrerId(e.target.value)}
-          >
-            <option value="">Select partner</option>
-            {partners.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.company_name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-500">Recommends</label>
-          <select
-            className="form-input mt-1 w-56"
-            value={targetId}
-            onChange={(e) => setTargetId(e.target.value)}
-          >
-            <option value="">Select partner</option>
-            {partners.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.company_name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={generateMutation.isPending}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          Generate Link
-        </button>
-      </div>
+      <h1 className="text-xl font-semibold text-gray-900">Partner Links</h1>
+      <p className="mt-1 text-sm text-gray-500">
+        Every partner has one permanent link - copy or download the QR and hand it to them.
+      </p>
 
       <div className="mt-6">
-        {isLoading && <LoadingSpinner label="Loading referral links..." />}
-        {isError && <ErrorState onRetry={() => void linksQuery.refetch()} />}
-        {!isLoading && !isError && links.length === 0 && (
-          <EmptyState
-            title="No referral links yet"
-            description="Generate one above to create a trackable link + QR code."
-          />
+        {isLoading && <LoadingSpinner label="Loading partner links..." />}
+        {isError && <ErrorState onRetry={() => void partnersQuery.refetch()} />}
+        {!isLoading && !isError && partners.length === 0 && (
+          <EmptyState title="No partners yet" description="Add a partner first to generate their link." />
         )}
-        {!isLoading && !isError && links.length > 0 && (
+        {!isLoading && !isError && partners.length > 0 && (
           <div className="space-y-4">
-            {links.map((link) => {
-              const referrer = partnerById.get(link.referrer_partner_id);
-              const target = partnerById.get(link.target_partner_id);
-              const url = buildReferralUrl(target?.slug ?? "", referrer?.slug ?? "");
-              return (
-                <div
-                  key={link.id}
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-gray-200 p-4"
-                >
+            {partners.map((partner) => (
+              <div
+                key={partner.id}
+                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={partner.logo_url}
+                    alt=""
+                    className="h-10 w-10 shrink-0 rounded-full border border-gray-200 object-cover"
+                  />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {referrer?.company_name ?? "Unknown"} → {target?.company_name ?? "Unknown"}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">{partner.company_name}</p>
                     <p className="text-xs text-gray-400">
-                      Created {new Date(link.created_at).toLocaleDateString()}
+                      {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
                     </p>
                   </div>
-                  <ReferralLinkActions
-                    url={url}
-                    fileName={link.slug}
-                    regenerating={regenerateMutation.isPending}
-                    onRegenerate={() =>
-                      regenerateMutation.mutateAsync({
-                        referrer_partner_id: link.referrer_partner_id,
-                        target_partner_id: link.target_partner_id,
-                      })
-                    }
-                  />
                 </div>
-              );
-            })}
+                <ReferralLinkActions
+                  url={buildPartnerReferralUrl(partner.slug)}
+                  fileName={partner.slug}
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>
