@@ -51,7 +51,7 @@ export default function AdminPartnerAccounts() {
   }
 
   const columns: DataTableColumn<Profile>[] = [
-    { header: "Email", accessor: (row) => <span className="font-medium text-gray-900">{row.email}</span> },
+    { header: "Email", accessor: (row) => <span className="font-medium text-slate-900">{row.email}</span> },
     {
       header: "Signed up",
       accessor: (row) => new Date(row.created_at).toLocaleDateString(),
@@ -106,8 +106,8 @@ export default function AdminPartnerAccounts() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-gray-900">Partner Approvals</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-xl font-semibold text-slate-900">Partner Approvals</h1>
+      <p className="mt-1 text-sm text-zinc-500">
         Approve a pending signup by assigning it to the business it belongs to - their referral
         link and QR code are already waiting and become available the moment they're approved.
       </p>

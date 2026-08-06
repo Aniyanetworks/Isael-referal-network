@@ -49,7 +49,7 @@ export function ReferralLinkActions({
 
   return (
     <div className="flex flex-wrap items-center gap-4">
-      <div className="shrink-0 rounded-md border border-gray-200 p-2">
+      <div className="shrink-0 rounded-md border border-zinc-200 p-2">
         <QRCodeCanvas ref={canvasRef} value={url} size={80} level="M" />
       </div>
       <div style={{ display: "none" }} aria-hidden="true">
@@ -60,20 +60,20 @@ export function ReferralLinkActions({
           readOnly
           value={url}
           onFocus={(e) => e.currentTarget.select()}
-          className="form-input w-full text-xs text-gray-500 sm:w-64"
+          className="form-input w-full text-xs text-zinc-500 sm:w-64"
         />
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={copyLink}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
           >
             Copy Link
           </button>
           <button
             type="button"
             onClick={downloadQr}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
           >
             Download QR
           </button>
@@ -82,7 +82,7 @@ export function ReferralLinkActions({
               type="button"
               onClick={() => setConfirmOpen(true)}
               disabled={regenerating}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary disabled:opacity-50"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary disabled:opacity-50"
             >
               {regenerating ? "Regenerating..." : "Regenerate"}
             </button>

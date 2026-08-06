@@ -95,8 +95,8 @@ export default function AdminDashboard() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-          <p className="mt-0.5 text-sm text-gray-500">
+          <h1 className="text-2xl font-semibold text-slate-900">Dashboard</h1>
+          <p className="mt-0.5 text-sm text-zinc-500">
             Here&apos;s what&apos;s happening with your referral network.
           </p>
         </div>
@@ -141,8 +141,8 @@ export default function AdminDashboard() {
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <h2 className="text-sm font-semibold text-gray-900">Clicks - last 7 days</h2>
+            <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <h2 className="text-sm font-semibold text-slate-900">Clicks - last 7 days</h2>
               {trendData.length === 0 ? (
                 <EmptyState title="No clicks in the last 7 days" />
               ) : (
@@ -190,24 +190,24 @@ export default function AdminDashboard() {
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <RankedList title="Top clicked partners" rows={topClickedPartners} />
-            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-              <h2 className="text-sm font-semibold text-gray-900">Recent activity</h2>
+            <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <h2 className="text-sm font-semibold text-slate-900">Recent activity</h2>
               {recentClicks.length === 0 ? (
                 <EmptyState
                   title="No clicks yet"
                   description="Once a customer clicks a partner's link, it'll show up here."
                 />
               ) : (
-                <ul className="mt-3 divide-y divide-gray-100">
+                <ul className="mt-3 divide-y divide-zinc-100">
                   {recentClicks.map((click) => (
                     <li key={click.id} className="flex items-center justify-between py-2 text-sm">
-                      <span className="text-gray-700">
+                      <span className="text-slate-700">
                         <span className="font-medium">
                           {partnerById.get(click.partner_id)?.company_name ?? "Unknown"}
                         </span>
                         {"'s link was clicked"}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-zinc-400">
                         {new Date(click.created_at).toLocaleString()}
                       </span>
                     </li>

@@ -105,11 +105,11 @@ export default function AdminCategories() {
   }
 
   const columns: DataTableColumn<Category>[] = [
-    { header: "Name", accessor: (row) => <span className="font-medium text-gray-900">{row.name}</span> },
+    { header: "Name", accessor: (row) => <span className="font-medium text-slate-900">{row.name}</span> },
     {
       header: "Slug",
       accessor: (row) => (
-        <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">{row.slug}</code>
+        <code className="rounded bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-500">{row.slug}</code>
       ),
     },
     {
@@ -132,7 +132,7 @@ export default function AdminCategories() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Categories</h1>
+        <h1 className="text-xl font-semibold text-slate-900">Categories</h1>
         <button
           type="button"
           onClick={openCreateForm}
@@ -163,7 +163,7 @@ export default function AdminCategories() {
       >
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div>
-            <label className="block text-sm font-medium text-gray-700" htmlFor="name">
+            <label className="block text-sm font-medium text-slate-700" htmlFor="name">
               Name
             </label>
             <input
@@ -178,7 +178,7 @@ export default function AdminCategories() {
             <button
               type="button"
               onClick={closeForm}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700"
+              className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700"
             >
               Cancel
             </button>

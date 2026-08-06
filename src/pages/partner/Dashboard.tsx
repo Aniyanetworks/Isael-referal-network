@@ -43,12 +43,12 @@ export default function PartnerDashboard() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Welcome, {profile?.email}</h1>
+          <h1 className="text-xl font-semibold text-slate-900">Welcome, {profile?.email}</h1>
         </div>
         <button
           type="button"
           onClick={() => void signOut()}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700"
+          className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-slate-700"
         >
           Log out
         </button>
@@ -66,9 +66,9 @@ export default function PartnerDashboard() {
 
       {!isLoading && !isError && overviewQuery.data && partnerQuery.data && (
         <>
-          <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-900">Your Referral Link</h2>
-            <p className="mt-1 text-xs text-gray-500">
+          <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <h2 className="text-sm font-semibold text-slate-900">Your Referral Link</h2>
+            <p className="mt-1 text-xs text-zinc-500">
               Share this link or QR code with customers.
             </p>
             <div className="mt-3">
@@ -84,8 +84,8 @@ export default function PartnerDashboard() {
             <StatCard label="This month" value={overviewQuery.data.clicksThisMonth} />
           </div>
 
-          <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-900">Your clicks over time</h2>
+          <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <h2 className="text-sm font-semibold text-slate-900">Your clicks over time</h2>
             {chartData.length === 0 ? (
               <EmptyState
                 title="No clicks yet"

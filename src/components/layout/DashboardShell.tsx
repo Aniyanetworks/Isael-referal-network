@@ -23,7 +23,7 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-zinc-50">
       {drawerOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 md:hidden"
@@ -33,7 +33,7 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-gray-200 bg-white transition-transform duration-200 ease-in-out md:static md:z-auto md:w-56 md:shrink-0 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-zinc-200 bg-white transition-transform duration-200 ease-in-out md:static md:z-auto md:w-56 md:shrink-0 md:translate-x-0 ${
           drawerOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -42,7 +42,7 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
-            className="rounded-md p-1 text-gray-400 hover:bg-gray-100 md:hidden"
+            className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 md:hidden"
             aria-label="Close menu"
           >
             <XIcon className="h-5 w-5" />
@@ -58,7 +58,7 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
                 `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-brand-primary text-white"
-                    : "text-gray-600 hover:bg-brand-primary/10 hover:text-brand-primary"
+                    : "text-zinc-600 hover:bg-brand-primary/10 hover:text-brand-primary"
                 }`
               }
             >
@@ -69,26 +69,26 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6">
+        <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 md:hidden"
+              className="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 md:hidden"
               aria-label="Open menu"
             >
               <MenuIcon className="h-5 w-5" />
             </button>
-            <p className="hidden text-sm text-gray-500 sm:block">Referral Partner Directory</p>
+            <p className="hidden text-sm text-zinc-500 sm:block">Referral Partner Directory</p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <span className="hidden max-w-[10rem] truncate text-sm text-gray-600 sm:inline md:max-w-none">
+            <span className="hidden max-w-[10rem] truncate text-sm text-zinc-600 sm:inline md:max-w-none">
               {profile?.email}
             </span>
             <button
               type="button"
               onClick={() => void signOut()}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+              className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
             >
               Log out
             </button>

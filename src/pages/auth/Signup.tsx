@@ -57,8 +57,8 @@ export default function Signup() {
     return (
       <AuthShell>
         <div className="mx-auto w-full max-w-sm rounded-2xl border border-white/60 bg-white/80 p-8 text-center shadow-xl shadow-brand-primary/10 backdrop-blur-sm">
-          <h1 className="text-xl font-semibold text-gray-900">Almost done</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="text-xl font-semibold text-slate-900">Almost done</h1>
+          <p className="mt-2 text-sm text-zinc-600">
             Confirm your email if prompted, then an admin will link your account
             to your business listing before your dashboard becomes available.
           </p>
@@ -73,11 +73,11 @@ export default function Signup() {
   return (
     <AuthShell>
       <div className="mx-auto w-full max-w-sm rounded-2xl border border-white/60 bg-white/80 p-8 shadow-xl shadow-brand-primary/10 backdrop-blur-sm">
-        <h1 className="text-xl font-semibold text-gray-900">Partner sign up</h1>
-        <p className="mt-1 text-sm text-gray-500">Create your account to get started</p>
+        <h1 className="text-xl font-semibold text-slate-900">Partner sign up</h1>
+        <p className="mt-1 text-sm text-zinc-500">Create your account to get started</p>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div>
-            <label className="block text-sm font-medium text-gray-700" htmlFor="email">
+            <label className="block text-sm font-medium text-slate-700" htmlFor="email">
               Email
             </label>
             <input
@@ -89,7 +89,7 @@ export default function Signup() {
             {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700" htmlFor="password">
+            <label className="block text-sm font-medium text-slate-700" htmlFor="password">
               Password
             </label>
             <input
@@ -111,7 +111,7 @@ export default function Signup() {
             {isSubmitting ? "Creating account..." : "Sign up"}
           </button>
         </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-zinc-600">
           Already have an account?{" "}
           <Link className="font-medium text-brand-primary underline" to="/login">
             Log in

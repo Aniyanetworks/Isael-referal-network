@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 type IconButtonVariant = "default" | "danger" | "success";
 
 const VARIANT_CLASSES: Record<IconButtonVariant, string> = {
-  default: "text-gray-500 hover:bg-brand-primary/10 hover:text-brand-primary",
-  danger: "text-gray-500 hover:bg-red-50 hover:text-red-600",
-  success: "text-gray-500 hover:bg-green-50 hover:text-green-600",
+  default: "text-zinc-500 hover:bg-brand-primary/10 hover:text-brand-primary",
+  danger: "text-zinc-500 hover:bg-red-50 hover:text-red-600",
+  success: "text-zinc-500 hover:bg-green-50 hover:text-green-600",
 };
 
 interface IconButtonProps {

@@ -7,7 +7,7 @@ export function RequireAuth({ role }: { role: UserRole }) {
   const { session, profile, loading } = useAuth();
 
   if (loading) {
-    return <div className="mt-16 text-center text-sm text-gray-500">Loading...</div>;
+    return <div className="mt-16 text-center text-sm text-zinc-500">Loading...</div>;
   }
 
   if (!session || !profile || profile.role !== role) {

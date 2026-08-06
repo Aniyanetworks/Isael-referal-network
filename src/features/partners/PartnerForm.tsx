@@ -166,7 +166,7 @@ export function PartnerForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700"
+          className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700"
         >
           Cancel
         </button>
@@ -192,7 +192,7 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="block text-sm font-medium text-gray-700">
+    <label className="block text-sm font-medium text-slate-700">
       {label}
       <div className="mt-1 font-normal">{children}</div>
       {error && <p className="mt-1 text-xs font-normal text-red-600">{error}</p>}

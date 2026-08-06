@@ -76,15 +76,15 @@ export default function PartnerDirectory() {
   return (
     <div>
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Referral Directory</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-xl font-semibold text-slate-900">Referral Directory</h1>
+        <p className="mt-1 text-sm text-zinc-500">
           Generate a trackable link and QR code for any partner to share with your customers.
         </p>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-3">
         <div className="relative max-w-xs flex-1">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
             value={search}
@@ -120,17 +120,17 @@ export default function PartnerDirectory() {
               return (
                 <div
                   key={partner.id}
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={partner.logo_url}
                       alt=""
-                      className="h-10 w-10 shrink-0 rounded-full border border-gray-200 object-cover"
+                      className="h-10 w-10 shrink-0 rounded-full border border-zinc-200 object-cover"
                     />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{partner.company_name}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-sm font-medium text-slate-900">{partner.company_name}</p>
+                      <p className="text-xs text-zinc-400">
                         {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
                       </p>
                     </div>

@@ -19,8 +19,8 @@ export default function AdminPartnerLinks() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-gray-900">Partner Links</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-xl font-semibold text-slate-900">Partner Links</h1>
+      <p className="mt-1 text-sm text-zinc-500">
         Every partner has one permanent link - copy or download the QR and hand it to them.
       </p>
 
@@ -35,17 +35,17 @@ export default function AdminPartnerLinks() {
             {partners.map((partner) => (
               <div
                 key={partner.id}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex items-center gap-3">
                   <img
                     src={partner.logo_url}
                     alt=""
-                    className="h-10 w-10 shrink-0 rounded-full border border-gray-200 object-cover"
+                    className="h-10 w-10 shrink-0 rounded-full border border-zinc-200 object-cover"
                   />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{partner.company_name}</p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-sm font-medium text-slate-900">{partner.company_name}</p>
+                    <p className="text-xs text-zinc-400">
                       {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
                     </p>
                   </div>

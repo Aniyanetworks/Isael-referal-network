@@ -58,15 +58,15 @@ export default function PublicPartnerProfile() {
           <Logo size="md" />
         </div>
 
-        <div className="animate-fade-in-up mx-auto max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-lg shadow-brand-primary/5 sm:p-8">
+        <div className="animate-fade-in-up mx-auto max-w-2xl rounded-2xl border border-zinc-200 bg-white p-6 shadow-lg shadow-brand-primary/5 sm:p-8">
           <div className="flex items-start gap-4">
             <img
               src={partner.logo_url}
               alt=""
-              className="h-16 w-16 shrink-0 rounded-full border border-gray-200 object-cover"
+              className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 object-cover"
             />
             <div className="min-w-0">
-              <h1 className="truncate text-2xl font-bold text-gray-900">{partner.company_name}</h1>
+              <h1 className="truncate text-2xl font-bold text-slate-900">{partner.company_name}</h1>
               {categoryQuery.data && (
                 <span className="mt-1 inline-block rounded-full bg-brand-primary/10 px-2.5 py-0.5 text-xs font-medium text-brand-primary">
                   {categoryQuery.data.name}
@@ -75,9 +75,9 @@ export default function PublicPartnerProfile() {
             </div>
           </div>
 
-          {partner.description && <p className="mt-4 text-gray-600">{partner.description}</p>}
+          {partner.description && <p className="mt-4 text-zinc-600">{partner.description}</p>}
 
-          <div className="mt-5 space-y-2 text-sm text-gray-600">
+          <div className="mt-5 space-y-2 text-sm text-zinc-600">
             {partner.phone && (
               <p className="flex items-center gap-2">
                 <PhoneIcon className="h-4 w-4 shrink-0 text-brand-primary" />
@@ -112,7 +112,7 @@ export default function PublicPartnerProfile() {
                 href={partner.website}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+                className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
               >
                 Visit Website
               </a>
@@ -122,7 +122,7 @@ export default function PublicPartnerProfile() {
                 href={mapsUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+                className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
               >
                 Get Directions
               </a>

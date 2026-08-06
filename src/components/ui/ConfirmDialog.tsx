@@ -23,12 +23,12 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Modal open={open} onClose={onCancel} title={title}>
-      <p className="text-sm text-gray-600">{description}</p>
+      <p className="text-sm text-zinc-600">{description}</p>
       <div className="mt-6 flex justify-end gap-3">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700"
+          className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700"
         >
           Cancel
         </button>
@@ -37,7 +37,7 @@ export function ConfirmDialog({
           onClick={onConfirm}
           disabled={pending}
           className={`rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50 ${
-            danger ? "bg-red-600" : "bg-gray-900"
+            danger ? "bg-red-600" : "bg-slate-900"
           }`}
         >
           {pending ? "Please wait..." : confirmLabel}

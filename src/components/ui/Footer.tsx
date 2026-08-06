@@ -1,6 +1,6 @@
 export function Footer() {
   return (
-    <footer className="py-6 text-center text-xs text-gray-400">
+    <footer className="py-6 text-center text-xs text-zinc-400">
       Designed &amp; Developed by{" "}
       <a
         href="https://aniyanetworks.net/"

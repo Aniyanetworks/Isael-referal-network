@@ -36,21 +36,21 @@ export default function PartnerProfile() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="text-xl font-semibold text-gray-900">Your Profile</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-xl font-semibold text-slate-900">Your Profile</h1>
+      <p className="mt-1 text-sm text-zinc-500">
         This is what customers and other partners see about your business. Contact an admin to
         update any of this.
       </p>
 
-      <div className="mt-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
           <img
             src={partner.logo_url}
             alt=""
-            className="h-16 w-16 shrink-0 rounded-full border border-gray-200 object-cover"
+            className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 object-cover"
           />
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">{partner.company_name}</h2>
+            <h2 className="text-lg font-semibold text-slate-900">{partner.company_name}</h2>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {categoryQuery.data && (
                 <span className="rounded-full bg-brand-primary/10 px-2.5 py-0.5 text-xs font-medium text-brand-primary">
@@ -61,12 +61,12 @@ export default function PartnerProfile() {
                 className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                   partner.status === "active"
                     ? "bg-brand-accent/20 text-green-700"
-                    : "bg-gray-100 text-gray-500"
+                    : "bg-zinc-100 text-zinc-500"
                 }`}
               >
                 <span
                   className={`h-1.5 w-1.5 rounded-full ${
-                    partner.status === "active" ? "bg-green-600" : "bg-gray-400"
+                    partner.status === "active" ? "bg-green-600" : "bg-zinc-400"
                   }`}
                 />
                 {partner.status}
@@ -75,7 +75,7 @@ export default function PartnerProfile() {
           </div>
         </div>
 
-        {partner.description && <p className="mt-4 text-sm text-gray-600">{partner.description}</p>}
+        {partner.description && <p className="mt-4 text-sm text-zinc-600">{partner.description}</p>}
 
         <dl className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <ProfileField icon={<UserIcon className="h-4 w-4" />} label="Contact" value={partner.partner_name} />
@@ -101,7 +101,7 @@ export default function PartnerProfile() {
         </dl>
 
         {hasSocial && (
-          <div className="mt-6 flex flex-wrap gap-3 border-t border-gray-100 pt-4">
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-zinc-100 pt-4">
             {social.facebook && (
               <a
                 href={social.facebook}
@@ -154,8 +154,8 @@ function ProfileField({
         {icon}
       </div>
       <div className="min-w-0">
-        <dt className="text-xs text-gray-400">{label}</dt>
-        <dd className="truncate text-sm text-gray-900">{value}</dd>
+        <dt className="text-xs text-zinc-400">{label}</dt>
+        <dd className="truncate text-sm text-slate-900">{value}</dd>
       </div>
     </div>
   );

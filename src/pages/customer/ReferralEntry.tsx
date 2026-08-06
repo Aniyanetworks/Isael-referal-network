@@ -107,7 +107,7 @@ export default function ReferralEntry() {
         </div>
 
         <div className="animate-fade-in-up mx-auto max-w-2xl text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-zinc-500">
             Shared by{" "}
             {selected ? (
               <button
@@ -118,7 +118,7 @@ export default function ReferralEntry() {
                 {referrer.company_name}
               </button>
             ) : (
-              <span className="font-medium text-gray-900">{referrer.company_name}</span>
+              <span className="font-medium text-slate-900">{referrer.company_name}</span>
             )}
           </p>
         </div>
@@ -131,15 +131,15 @@ export default function ReferralEntry() {
         </div>
 
         <div className="animate-fade-in-up mx-auto mt-10 max-w-2xl text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Trusted Partners</h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <h2 className="text-2xl font-bold text-slate-900">Trusted Partners</h2>
+          <p className="mt-1 text-sm text-zinc-500">
             Browse the other businesses {referrer.company_name} works with.
           </p>
         </div>
 
         <div className="mx-auto mt-8 max-w-2xl">
           <div className="relative">
-            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
               value={search}
@@ -167,21 +167,21 @@ export default function ReferralEntry() {
                     className={`flex items-center gap-3 rounded-xl border bg-white p-4 text-left shadow-sm transition-all hover:shadow-md ${
                       isSelected
                         ? "border-brand-primary ring-2 ring-brand-primary/30"
-                        : "border-gray-200 hover:border-brand-primary/40"
+                        : "border-zinc-200 hover:border-brand-primary/40"
                     }`}
                   >
                     <img
                       src={partner.logo_url}
                       alt=""
-                      className="h-10 w-10 shrink-0 rounded-full border border-gray-200 object-cover"
+                      className="h-10 w-10 shrink-0 rounded-full border border-zinc-200 object-cover"
                     />
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-gray-900">{partner.company_name}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="truncate font-medium text-slate-900">{partner.company_name}</p>
+                      <p className="text-xs text-zinc-400">
                         {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
                       </p>
                       {partner.description && (
-                        <p className="mt-0.5 line-clamp-2 text-sm text-gray-500">
+                        <p className="mt-0.5 line-clamp-2 text-sm text-zinc-500">
                           {partner.description}
                         </p>
                       )}
@@ -207,15 +207,15 @@ function PartnerContactCard({
   categoryName?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg shadow-brand-primary/5 sm:p-8">
+    <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-lg shadow-brand-primary/5 sm:p-8">
       <div className="flex items-start gap-4">
         <img
           src={partner.logo_url}
           alt=""
-          className="h-16 w-16 shrink-0 rounded-full border border-gray-200 object-cover"
+          className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 object-cover"
         />
         <div className="min-w-0">
-          <h3 className="truncate text-xl font-bold text-gray-900">{partner.company_name}</h3>
+          <h3 className="truncate text-xl font-bold text-slate-900">{partner.company_name}</h3>
           {categoryName && (
             <span className="mt-1 inline-block rounded-full bg-brand-primary/10 px-2.5 py-0.5 text-xs font-medium text-brand-primary">
               {categoryName}
@@ -224,9 +224,9 @@ function PartnerContactCard({
         </div>
       </div>
 
-      {partner.description && <p className="mt-4 text-gray-600">{partner.description}</p>}
+      {partner.description && <p className="mt-4 text-zinc-600">{partner.description}</p>}
 
-      <div className="mt-5 space-y-2 text-sm text-gray-600">
+      <div className="mt-5 space-y-2 text-sm text-zinc-600">
         {partner.phone && (
           <p className="flex items-center gap-2">
             <PhoneIcon className="h-4 w-4 shrink-0 text-brand-primary" />
@@ -261,7 +261,7 @@ function PartnerContactCard({
             href={partner.website}
             target="_blank"
             rel="noreferrer"
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
           >
             Visit Website
           </a>
@@ -271,7 +271,7 @@ function PartnerContactCard({
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(partner.address)}`}
             target="_blank"
             rel="noreferrer"
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
           >
             Get Directions
           </a>

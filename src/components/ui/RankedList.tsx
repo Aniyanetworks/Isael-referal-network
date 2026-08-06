@@ -15,19 +15,19 @@ interface RankedListProps {
 export function RankedList({ title, rows, emptyLabel = "No data yet." }: RankedListProps) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+      <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
       {rows.length === 0 ? (
-        <p className="mt-3 text-xs text-gray-400">{emptyLabel}</p>
+        <p className="mt-3 text-xs text-zinc-400">{emptyLabel}</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {rows.map((row) => (
             <li key={row.id}>
-              <div className="flex items-center justify-between text-xs text-gray-600">
+              <div className="flex items-center justify-between text-xs text-zinc-600">
                 <span>{row.label}</span>
-                <span className="font-medium text-gray-900">{row.value}</span>
+                <span className="font-medium text-slate-900">{row.value}</span>
               </div>
-              <div className="mt-1 h-1.5 rounded-full bg-gray-100">
+              <div className="mt-1 h-1.5 rounded-full bg-zinc-100">
                 <div
                   className="h-1.5 rounded-full"
                   style={{

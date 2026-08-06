@@ -81,7 +81,7 @@ export default function AdminAnalytics() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold text-gray-900">Analytics</h1>
+        <h1 className="text-xl font-semibold text-slate-900">Analytics</h1>
         <div className="flex flex-wrap items-center gap-2">
           {PRESETS.map((item) => (
             <button
@@ -91,7 +91,7 @@ export default function AdminAnalytics() {
               className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                 preset === item.value
                   ? "bg-brand-primary text-white"
-                  : "border border-gray-300 text-gray-600 hover:border-brand-primary hover:text-brand-primary"
+                  : "border border-zinc-300 text-zinc-600 hover:border-brand-primary hover:text-brand-primary"
               }`}
             >
               {item.label}
@@ -105,7 +105,7 @@ export default function AdminAnalytics() {
                 onChange={(e) => setCustomFrom(e.target.value)}
                 className="form-input"
               />
-              <span className="text-xs text-gray-400">to</span>
+              <span className="text-xs text-zinc-400">to</span>
               <input
                 type="date"
                 value={customTo}
@@ -149,8 +149,8 @@ export default function AdminAnalytics() {
             />
           </div>
 
-          <div className="mt-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-900">Daily clicks</h2>
+          <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <h2 className="text-sm font-semibold text-slate-900">Daily clicks</h2>
             {chartData.length === 0 ? (
               <EmptyState title="No clicks in this range" />
             ) : (

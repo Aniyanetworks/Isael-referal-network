@@ -115,9 +115,9 @@ export default function AdminPartners() {
           <img
             src={row.logo_url}
             alt=""
-            className="h-8 w-8 shrink-0 rounded-full border border-gray-200 object-cover"
+            className="h-8 w-8 shrink-0 rounded-full border border-zinc-200 object-cover"
           />
-          <span className="font-medium text-gray-900">{row.company_name}</span>
+          <span className="font-medium text-slate-900">{row.company_name}</span>
         </div>
       ),
     },
@@ -131,12 +131,12 @@ export default function AdminPartners() {
           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
             row.status === "active"
               ? "bg-brand-accent/20 text-green-700"
-              : "bg-gray-100 text-gray-500"
+              : "bg-zinc-100 text-zinc-500"
           }`}
         >
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              row.status === "active" ? "bg-green-600" : "bg-gray-400"
+              row.status === "active" ? "bg-green-600" : "bg-zinc-400"
             }`}
           />
           {row.status}
@@ -173,7 +173,7 @@ export default function AdminPartners() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-gray-900">Partners</h1>
+        <h1 className="text-xl font-semibold text-slate-900">Partners</h1>
         <button
           type="button"
           onClick={openCreateForm}
@@ -185,7 +185,7 @@ export default function AdminPartners() {
 
       <div className="mt-4 flex flex-wrap gap-3">
         <div className="relative max-w-xs flex-1">
-          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
             placeholder="Search by company, contact, or email"

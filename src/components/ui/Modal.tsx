@@ -28,12 +28,12 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       />
       <div className="relative z-50 flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
           >
             ✕
           </button>
