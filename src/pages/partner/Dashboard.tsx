@@ -54,8 +54,15 @@ export default function PartnerDashboard() {
         </button>
       </div>
 
-      {isLoading && <LoadingSpinner label="Loading your stats..." />}
-      {isError && <ErrorState onRetry={() => void overviewQuery.refetch()} />}
+      {!partnerId && (
+        <EmptyState
+          title="Approval pending"
+          description="An admin still needs to link your account to your business listing before your dashboard is available."
+        />
+      )}
+
+      {Boolean(partnerId) && isLoading && <LoadingSpinner label="Loading your stats..." />}
+      {Boolean(partnerId) && isError && <ErrorState onRetry={() => void overviewQuery.refetch()} />}
 
       {!isLoading && !isError && overviewQuery.data && partnerQuery.data && (
         <>

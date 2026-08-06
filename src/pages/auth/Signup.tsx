@@ -39,8 +39,10 @@ export default function Signup() {
         // They already have an account - if this password is theirs, just
         // log them in instead of making them go find the login page.
         try {
-          await signIn(values.email, values.password);
-          navigate("/admin/dashboard", { replace: true });
+          const profile = await signIn(values.email, values.password);
+          navigate(profile?.role === "admin" ? "/admin/dashboard" : "/partner/dashboard", {
+            replace: true,
+          });
           return;
         } catch {
           setFormError("This email is already registered. Check your password, or log in below.");

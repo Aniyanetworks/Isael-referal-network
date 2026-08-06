@@ -168,6 +168,16 @@ export function PhoneIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function DownloadIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Base {...props}>
+      <path d="M12 4v11" />
+      <path d="m7.5 11 4.5 4.5L16.5 11" />
+      <path d="M5 19.5h14" />
+    </Base>
+  );
+}
+
 export function MapPinIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Base {...props}>

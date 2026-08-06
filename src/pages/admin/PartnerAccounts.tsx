@@ -65,12 +65,12 @@ export default function AdminPartnerAccounts() {
           }`}
         >
           <span className={`h-1.5 w-1.5 rounded-full ${row.partner_id ? "bg-green-600" : "bg-amber-500"}`} />
-          {row.partner_id ? "Linked" : "Pending"}
+          {row.partner_id ? "Approved" : "Pending"}
         </span>
       ),
     },
     {
-      header: "Linked business",
+      header: "Assign to business",
       className: "min-w-[14rem]",
       accessor: (row) => (
         <SearchableSelect
@@ -89,6 +89,7 @@ export default function AdminPartnerAccounts() {
       accessor: (row) => {
         const currentSelection = selectionFor(row);
         const changed = currentSelection !== (row.partner_id ?? "");
+        const label = !row.partner_id && currentSelection ? "Approve" : "Save";
         return (
           <button
             type="button"
@@ -96,7 +97,7 @@ export default function AdminPartnerAccounts() {
             onClick={() => saveMutation.mutate({ profileId: row.id, partnerId: currentSelection })}
             className="rounded-md bg-brand-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-40"
           >
-            Save
+            {label}
           </button>
         );
       },
@@ -105,10 +106,10 @@ export default function AdminPartnerAccounts() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-gray-900">Partner Accounts</h1>
+      <h1 className="text-xl font-semibold text-gray-900">Partner Approvals</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Everyone who has signed up as a partner, and which business listing they're linked to.
-        Reassign a login to a different business any time.
+        Approve a pending signup by assigning it to the business it belongs to - their referral
+        link and QR code are already waiting and become available the moment they're approved.
       </p>
 
       <div className="mt-6">

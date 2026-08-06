@@ -8,7 +8,7 @@ export interface AuthContextValue {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<Profile | null>;
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -21,12 +21,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
 
-  async function applySession(nextSession: Session | null) {
+  async function applySession(nextSession: Session | null): Promise<Profile | null> {
     setSession(nextSession);
     const nextProfile = nextSession ? await getMyProfile(nextSession.user.id) : null;
-    if (!mountedRef.current) return;
+    if (!mountedRef.current) return nextProfile;
     setProfile(nextProfile);
     setLoading(false);
+    return nextProfile;
   }
 
   useEffect(() => {
@@ -43,15 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  async function signIn(email: string, password: string) {
+  async function signIn(email: string, password: string): Promise<Profile | null> {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     // Wait for session + profile to actually land in state before returning,
     // so a caller that navigates right after this resolves doesn't race
     // RequireAuth (which would otherwise see profile still null and bounce
-    // back to /login on the first attempt).
+    // back to /login on the first attempt). Returned directly too, since the
+    // caller's own `profile` closure is still the pre-login value at this point.
     setLoading(true);
-    await applySession(data.session);
+    return applySession(data.session);
   }
 
   async function signUp(email: string, password: string) {

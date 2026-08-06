@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { AuthShell } from "../../components/layout/AuthShell";
 import { useAuth } from "../../hooks/useAuth";
@@ -27,8 +27,10 @@ export default function Login() {
   async function onSubmit(values: LoginFormValues) {
     setFormError(null);
     try {
-      await signIn(values.email, values.password);
-      navigate("/admin/dashboard", { replace: true });
+      const profile = await signIn(values.email, values.password);
+      navigate(profile?.role === "admin" ? "/admin/dashboard" : "/partner/dashboard", {
+        replace: true,
+      });
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "Could not sign in");
     }
@@ -75,6 +77,12 @@ export default function Login() {
             {isSubmitting ? "Signing in..." : "Log in"}
           </button>
         </form>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          New partner?{" "}
+          <Link className="font-medium text-brand-primary underline" to="/signup">
+            Sign up
+          </Link>
+        </p>
       </div>
     </AuthShell>
   );

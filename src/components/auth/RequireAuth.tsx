@@ -1,15 +1,16 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import type { UserRole } from "../../types";
 
-/** Gates the admin-only area of the app - there is no other logged-in role. */
-export function RequireAuth() {
+/** Gates a route tree to sessions whose profile has the given role. */
+export function RequireAuth({ role }: { role: UserRole }) {
   const { session, profile, loading } = useAuth();
 
   if (loading) {
     return <div className="mt-16 text-center text-sm text-gray-500">Loading...</div>;
   }
 
-  if (!session || !profile || profile.role !== "admin") {
+  if (!session || !profile || profile.role !== role) {
     return <Navigate to="/login" replace />;
   }
 

@@ -5,6 +5,7 @@ import { Footer } from "../../components/ui/Footer";
 import { GlobeIcon, MapPinIcon, PhoneIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Logo } from "../../components/ui/Logo";
+import { SaveToPhoneButton } from "../../components/ui/SaveToPhoneButton";
 import { getCategoryById } from "../../services/categories.service";
 import { getPartnerBySlug } from "../../services/partners.service";
 
@@ -126,6 +127,7 @@ export default function PublicPartnerProfile() {
                 Get Directions
               </a>
             )}
+            <SaveToPhoneButton partner={partner} />
           </div>
         </div>
       </div>
