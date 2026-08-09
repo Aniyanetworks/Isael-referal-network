@@ -38,7 +38,7 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
         }`}
       >
         <div className="flex items-center justify-between px-4 py-5">
-          <Logo size="sm" />
+          <Logo size="lg" />
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
