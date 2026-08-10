@@ -58,3 +58,15 @@ export async function unlinkProfile(profileId: string): Promise<Profile> {
   if (error) throw error;
   return data;
 }
+
+/**
+ * Removes a partner signup's app record (rejects/cancels it). Only deletes
+ * the profiles row - the underlying Supabase Auth user still exists, since
+ * deleting that requires the service-role key, which must never run in the
+ * browser. If they sign up again with the same email it'll say "already
+ * registered"; that's an acceptable edge case for a rejected signup.
+ */
+export async function deleteProfile(profileId: string): Promise<void> {
+  const { error } = await supabase.from("profiles").delete().eq("id", profileId);
+  if (error) throw error;
+}

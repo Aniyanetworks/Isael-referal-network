@@ -1,13 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { DataTable, type DataTableColumn } from "../../components/ui/DataTable";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
+import { IconButton } from "../../components/ui/IconButton";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { SearchableSelect } from "../../components/ui/SearchableSelect";
+import { TrashIcon } from "../../components/ui/icons";
 import { getPartners } from "../../services/partners.service";
 import {
+  deleteProfile,
   getAllPartnerProfiles,
   linkProfileToPartner,
   unlinkProfile,
@@ -23,6 +27,7 @@ export default function AdminPartnerAccounts() {
   const partnersQuery = useQuery({ queryKey: ["partners-all"], queryFn: () => getPartners() });
 
   const [selections, setSelections] = useState<Record<string, string>>({});
+  const [deletingProfile, setDeletingProfile] = useState<Profile | null>(null);
 
   const saveMutation = useMutation({
     mutationFn: (values: { profileId: string; partnerId: string }) =>
@@ -39,6 +44,19 @@ export default function AdminPartnerAccounts() {
       toast.success("Account updated");
     },
     onError: (error: Error) => toast.error(error.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProfile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["all-partner-profiles"] });
+      toast.success("Signup removed");
+      setDeletingProfile(null);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+      setDeletingProfile(null);
+    },
   });
 
   const isLoading = profilesQuery.isLoading || partnersQuery.isLoading;
@@ -91,14 +109,22 @@ export default function AdminPartnerAccounts() {
         const changed = currentSelection !== (row.partner_id ?? "");
         const label = !row.partner_id && currentSelection ? "Approve" : "Save";
         return (
-          <button
-            type="button"
-            disabled={!changed || saveMutation.isPending}
-            onClick={() => saveMutation.mutate({ profileId: row.id, partnerId: currentSelection })}
-            className="rounded-md bg-brand-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-40"
-          >
-            {label}
-          </button>
+          <div className="flex justify-end gap-1">
+            <button
+              type="button"
+              disabled={!changed || saveMutation.isPending}
+              onClick={() => saveMutation.mutate({ profileId: row.id, partnerId: currentSelection })}
+              className="rounded-md bg-brand-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-40"
+            >
+              {label}
+            </button>
+            <IconButton
+              icon={<TrashIcon className="h-4 w-4" />}
+              label="Delete"
+              variant="danger"
+              onClick={() => setDeletingProfile(row)}
+            />
+          </div>
         );
       },
     },
@@ -125,6 +151,17 @@ export default function AdminPartnerAccounts() {
           <DataTable columns={columns} data={profiles} rowKey={(row) => row.id} />
         )}
       </div>
+
+      <ConfirmDialog
+        open={Boolean(deletingProfile)}
+        title="Remove signup"
+        description={`Remove the signup for "${deletingProfile?.email}"? They'll need to sign up again to be considered for approval.`}
+        confirmLabel="Remove"
+        danger
+        pending={deleteMutation.isPending}
+        onConfirm={() => deletingProfile && deleteMutation.mutate(deletingProfile.id)}
+        onCancel={() => setDeletingProfile(null)}
+      />
     </div>
   );
 }
