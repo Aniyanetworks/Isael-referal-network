@@ -1,4 +1,4 @@
-export type PartnerStatus = "active" | "inactive";
+export type PartnerStatus = "active" | "inactive" | "pending";
 
 export interface SocialLinks {
   facebook?: string;

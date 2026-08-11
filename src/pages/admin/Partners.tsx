@@ -131,12 +131,18 @@ export default function AdminPartners() {
           className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
             row.status === "active"
               ? "bg-brand-accent/20 text-green-700"
-              : "bg-zinc-100 text-zinc-500"
+              : row.status === "pending"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-zinc-100 text-zinc-500"
           }`}
         >
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              row.status === "active" ? "bg-green-600" : "bg-zinc-400"
+              row.status === "active"
+                ? "bg-green-600"
+                : row.status === "pending"
+                  ? "bg-amber-500"
+                  : "bg-zinc-400"
             }`}
           />
           {row.status}
@@ -213,6 +219,7 @@ export default function AdminPartners() {
           options={[
             { value: "active", label: "Active" },
             { value: "inactive", label: "Inactive" },
+            { value: "pending", label: "Pending" },
           ]}
         />
       </div>

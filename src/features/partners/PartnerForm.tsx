@@ -15,7 +15,7 @@ const partnerSchema = z.object({
   category_id: z.string().min(1, "Select a category"),
   description: z.string(),
   logo_url: z.string(),
-  status: z.enum(["active", "inactive"]),
+  status: z.enum(["active", "inactive", "pending"]),
   facebook: z.string(),
   instagram: z.string(),
   linkedin: z.string(),
@@ -136,6 +136,7 @@ export function PartnerForm({
                 options={[
                   { value: "active", label: "Active" },
                   { value: "inactive", label: "Inactive" },
+                  { value: "pending", label: "Pending" },
                 ]}
               />
             )}
@@ -182,7 +183,7 @@ export function PartnerForm({
   );
 }
 
-function Field({
+export function Field({
   label,
   error,
   children,
