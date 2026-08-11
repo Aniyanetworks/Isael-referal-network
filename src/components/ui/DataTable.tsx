@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export interface DataTableColumn<T> {
   header: string;
-  accessor: (row: T) => ReactNode;
+  accessor: (row: T, index: number) => ReactNode;
   className?: string;
 }
 
@@ -29,14 +29,14 @@ export function DataTable<T>({ columns, data, rowKey }: DataTableProps<T>) {
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-100">
-          {data.map((row) => (
+          {data.map((row, index) => (
             <tr key={rowKey(row)} className="transition-colors hover:bg-brand-primary/4">
               {columns.map((col) => (
                 <td
                   key={col.header}
                   className={`px-4 py-3 align-middle text-slate-700 ${col.className ?? ""}`}
                 >
-                  {col.accessor(row)}
+                  {col.accessor(row, index)}
                 </td>
               ))}
             </tr>

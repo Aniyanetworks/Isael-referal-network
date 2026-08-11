@@ -109,6 +109,10 @@ export default function AdminPartners() {
 
   const columns: DataTableColumn<Partner>[] = [
     {
+      header: "#",
+      accessor: (_row, index) => index + 1,
+    },
+    {
       header: "Company",
       accessor: (row) => (
         <div className="flex items-center gap-3">
