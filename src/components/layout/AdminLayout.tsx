@@ -5,6 +5,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/admin/partners", label: "Partners" },
   { to: "/admin/partner-accounts", label: "Partner Approvals" },
   { to: "/admin/categories", label: "Categories" },
+  { to: "/admin/networks", label: "Networks" },
   { to: "/admin/referral-links", label: "Partner Links" },
   { to: "/admin/analytics", label: "Analytics" },
 ];

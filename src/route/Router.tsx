@@ -8,10 +8,14 @@ import AdminCategories from "../pages/admin/Categories";
 import AdminReferralLinks from "../pages/admin/ReferralLinks";
 import AdminAnalytics from "../pages/admin/Analytics";
 import AdminPartnerAccounts from "../pages/admin/PartnerAccounts";
+import AdminNetworks from "../pages/admin/Networks";
+import AdminNetworkDetail from "../pages/admin/NetworkDetail";
 import PartnerDashboard from "../pages/partner/Dashboard";
 import PartnerProfile from "../pages/partner/Profile";
+import PartnerMyNetworks from "../pages/partner/MyNetworks";
 import ReferralEntry from "../pages/customer/ReferralEntry";
 import PublicPartnerProfile from "../pages/customer/PublicPartnerProfile";
+import NetworkEntry from "../pages/customer/NetworkEntry";
 import { RequireAuth } from "../components/auth/RequireAuth";
 import { AdminLayout } from "../components/layout/AdminLayout";
 import { PartnerLayout } from "../components/layout/PartnerLayout";
@@ -24,6 +28,7 @@ const router = createBrowserRouter([
     children: [
       { path: "ref/:partnerSlug", element: <ReferralEntry /> },
       { path: "business/:partnerSlug", element: <PublicPartnerProfile /> },
+      { path: "network/:networkSlug", element: <NetworkEntry /> },
     ],
   },
   {
@@ -47,6 +52,8 @@ const router = createBrowserRouter([
           { path: "partners", element: <AdminPartners /> },
           { path: "partner-accounts", element: <AdminPartnerAccounts /> },
           { path: "categories", element: <AdminCategories /> },
+          { path: "networks", element: <AdminNetworks /> },
+          { path: "networks/:networkId", element: <AdminNetworkDetail /> },
           { path: "referral-links", element: <AdminReferralLinks /> },
           { path: "analytics", element: <AdminAnalytics /> },
         ],
@@ -62,6 +69,7 @@ const router = createBrowserRouter([
         children: [
           { path: "dashboard", element: <PartnerDashboard /> },
           { path: "profile", element: <PartnerProfile /> },
+          { path: "network", element: <PartnerMyNetworks /> },
         ],
       },
     ],
