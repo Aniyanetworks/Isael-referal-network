@@ -1,7 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { z } from "zod";
+import { LogoUpload } from "../../components/ui/LogoUpload";
 import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import type { Category, Partner, PartnerInput } from "../../types";
 
@@ -66,6 +68,7 @@ export function PartnerForm({
     resolver: zodResolver(partnerSchema),
     defaultValues: toFormValues(partner),
   });
+  const [logoUploading, setLogoUploading] = useState(false);
 
   function submit(values: PartnerFormValues) {
     const social_links: PartnerInput["social_links"] = {};
@@ -147,9 +150,22 @@ export function PartnerForm({
       <Field label="Description">
         <textarea rows={3} className="form-input" {...register("description")} />
       </Field>
-      <Field label="Logo URL">
-        <input className="form-input" {...register("logo_url")} />
-      </Field>
+      <div className="text-sm font-medium text-slate-700">
+        Logo
+        <div className="mt-1 font-normal">
+          <Controller
+            control={control}
+            name="logo_url"
+            render={({ field }) => (
+              <LogoUpload
+                value={field.value}
+                onChange={field.onChange}
+                onUploadingChange={setLogoUploading}
+              />
+            )}
+          />
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Field label="Facebook">
@@ -173,7 +189,7 @@ export function PartnerForm({
         </button>
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || logoUploading}
           className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-50"
         >
           {submitting ? "Saving..." : submitLabel}

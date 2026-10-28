@@ -1,5 +1,7 @@
 import { GlobeIcon, MapPinIcon, PhoneIcon } from "../ui/icons";
+import { SocialLinks } from "./SocialLinks";
 import { SaveToPhoneButton } from "../ui/SaveToPhoneButton";
+import { toExternalUrl } from "../../lib/url";
 import type { Partner } from "../../types";
 
 export function PartnerContactCard({
@@ -28,6 +30,12 @@ export function PartnerContactCard({
       </div>
 
       {partner.description && <p className="mt-4 text-zinc-600">{partner.description}</p>}
+
+      <SocialLinks
+        links={partner.social_links}
+        companyName={partner.company_name}
+        className="mt-4"
+      />
 
       <div className="mt-5 space-y-2 text-sm text-zinc-600">
         {partner.phone && (
@@ -61,7 +69,7 @@ export function PartnerContactCard({
         )}
         {partner.website && (
           <a
-            href={partner.website}
+            href={toExternalUrl(partner.website) ?? undefined}
             target="_blank"
             rel="noreferrer"
             className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"

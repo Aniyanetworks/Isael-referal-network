@@ -6,6 +6,7 @@ import { GlobeIcon, MailIcon, MapPinIcon, PhoneIcon, UserIcon } from "../../comp
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { useAuth } from "../../hooks/useAuth";
 import { getCategoryById } from "../../services/categories.service";
+import { toExternalUrl } from "../../lib/url";
 import { getPartnerById } from "../../services/partners.service";
 
 export default function PartnerProfile() {
@@ -88,7 +89,7 @@ export default function PartnerProfile() {
               label="Website"
               value={
                 <a
-                  href={partner.website}
+                  href={toExternalUrl(partner.website) ?? undefined}
                   target="_blank"
                   rel="noreferrer"
                   className="text-brand-primary hover:underline"

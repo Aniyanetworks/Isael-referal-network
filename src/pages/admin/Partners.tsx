@@ -9,6 +9,7 @@ import { IconButton } from "../../components/ui/IconButton";
 import { PencilIcon, PowerIcon, SearchIcon, TrashIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Modal } from "../../components/ui/Modal";
+import { Pagination } from "../../components/ui/Pagination";
 import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { PartnerForm } from "../../features/partners/PartnerForm";
 import { getCategories } from "../../services/categories.service";
@@ -21,9 +22,19 @@ import {
 } from "../../services/partners.service";
 import type { Partner, PartnerFilters, PartnerInput } from "../../types";
 
+const PAGE_SIZE = 10;
+
 export default function AdminPartners() {
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useState<PartnerFilters>({});
+  const [filters, setFiltersState] = useState<PartnerFilters>({});
+  const [page, setPage] = useState(1);
+
+  // Any filter change starts back at page 1, otherwise a narrowed result set
+  // could leave the admin looking at an empty page.
+  function setFilters(update: (f: PartnerFilters) => PartnerFilters) {
+    setFiltersState(update);
+    setPage(1);
+  }
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
   const partnersQuery = useQuery({
@@ -107,10 +118,21 @@ export default function AdminPartners() {
   const categories = categoriesQuery.data ?? [];
   const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
 
+  const partners = partnersQuery.data ?? [];
+  // Clamp in case the list shrinks (e.g. a delete) below the current page.
+  const pageCount = Math.max(1, Math.ceil(partners.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagePartners = partners.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  function changePage(next: number) {
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   const columns: DataTableColumn<Partner>[] = [
     {
       header: "#",
-      accessor: (_row, index) => index + 1,
+      accessor: (_row, index) => (currentPage - 1) * PAGE_SIZE + index + 1,
     },
     {
       header: "Company",
@@ -176,7 +198,6 @@ export default function AdminPartners() {
     },
   ];
 
-  const partners = partnersQuery.data ?? [];
   const isLoading = partnersQuery.isLoading || categoriesQuery.isLoading;
   const isError = partnersQuery.isError || categoriesQuery.isError;
 
@@ -238,7 +259,15 @@ export default function AdminPartners() {
           />
         )}
         {!isLoading && !isError && partners.length > 0 && (
-          <DataTable columns={columns} data={partners} rowKey={(row) => row.id} />
+          <div className="space-y-4">
+            <DataTable columns={columns} data={pagePartners} rowKey={(row) => row.id} />
+            <Pagination
+              page={currentPage}
+              pageSize={PAGE_SIZE}
+              total={partners.length}
+              onPageChange={changePage}
+            />
+          </div>
         )}
       </div>
 

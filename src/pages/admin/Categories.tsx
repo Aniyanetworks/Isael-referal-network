@@ -12,6 +12,7 @@ import { IconButton } from "../../components/ui/IconButton";
 import { PencilIcon, TrashIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Modal } from "../../components/ui/Modal";
+import { Pagination } from "../../components/ui/Pagination";
 import {
   createCategory,
   deleteCategory,
@@ -25,6 +26,8 @@ const categorySchema = z.object({
 });
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
+const PAGE_SIZE = 10;
+
 export default function AdminCategories() {
   const queryClient = useQueryClient();
   const { data: categories, isLoading, isError, refetch } = useQuery({
@@ -35,6 +38,21 @@ export default function AdminCategories() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+  const [page, setPage] = useState(1);
+
+  // Clamp in case the list shrinks (e.g. a delete) below the current page.
+  const total = categories?.length ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageCategories = (categories ?? []).slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  );
+
+  function changePage(next: number) {
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   const {
     register,
@@ -152,7 +170,15 @@ export default function AdminCategories() {
           />
         )}
         {!isLoading && !isError && categories && categories.length > 0 && (
-          <DataTable columns={columns} data={categories} rowKey={(row) => row.id} />
+          <div className="space-y-4">
+            <DataTable columns={columns} data={pageCategories} rowKey={(row) => row.id} />
+            <Pagination
+              page={currentPage}
+              pageSize={PAGE_SIZE}
+              total={total}
+              onPageChange={changePage}
+            />
+          </div>
         )}
       </div>
 

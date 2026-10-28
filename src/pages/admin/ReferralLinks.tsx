@@ -1,18 +1,33 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
+import { Pagination } from "../../components/ui/Pagination";
 import { ReferralLinkActions } from "../../features/referralLinks/ReferralLinkActions";
 import { buildPartnerReferralUrl } from "../../services/partnerReferrals.service";
 import { getCategories } from "../../services/categories.service";
 import { getPartners } from "../../services/partners.service";
 
+const PAGE_SIZE = 10;
+
 export default function AdminPartnerLinks() {
+  const [page, setPage] = useState(1);
   const partnersQuery = useQuery({ queryKey: ["partners-all"], queryFn: () => getPartners() });
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
 
   const partners = partnersQuery.data ?? [];
   const categoryNameById = new Map((categoriesQuery.data ?? []).map((c) => [c.id, c.name]));
+
+  // Clamp in case the partner count shrinks (e.g. a delete) below the current page.
+  const pageCount = Math.max(1, Math.ceil(partners.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagePartners = partners.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  function changePage(next: number) {
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   const isLoading = partnersQuery.isLoading || categoriesQuery.isLoading;
   const isError = partnersQuery.isError || categoriesQuery.isError;
@@ -32,7 +47,7 @@ export default function AdminPartnerLinks() {
         )}
         {!isLoading && !isError && partners.length > 0 && (
           <div className="space-y-4">
-            {partners.map((partner) => (
+            {pagePartners.map((partner) => (
               <div
                 key={partner.id}
                 className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
@@ -56,6 +71,14 @@ export default function AdminPartnerLinks() {
                 />
               </div>
             ))}
+            <div className="pt-2">
+              <Pagination
+                page={currentPage}
+                pageSize={PAGE_SIZE}
+                total={partners.length}
+                onPageChange={changePage}
+              />
+            </div>
           </div>
         )}
       </div>

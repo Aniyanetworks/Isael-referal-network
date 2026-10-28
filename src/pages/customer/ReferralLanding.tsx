@@ -10,6 +10,8 @@ import { detectDevice, getClientIp, getVisitorId } from "../../lib/visitor";
 import { recordClick } from "../../services/analytics.service";
 import { getCategoryById } from "../../services/categories.service";
 import { getPartnerBySlug, getPartners } from "../../services/partners.service";
+import { SocialLinks } from "../../components/customer/SocialLinks";
+import { toExternalUrl } from "../../lib/url";
 import { getOrCreateReferralLink } from "../../services/referralLinks.service";
 
 export default function ReferralLanding() {
@@ -121,6 +123,12 @@ export default function ReferralLanding() {
 
           {target.description && <p className="mt-4 text-zinc-600">{target.description}</p>}
 
+          <SocialLinks
+            links={target.social_links}
+            companyName={target.company_name}
+            className="mt-4"
+          />
+
           <div className="mt-5 space-y-2 text-sm text-zinc-600">
             {target.phone && (
               <p className="flex items-center gap-2">
@@ -153,7 +161,7 @@ export default function ReferralLanding() {
             )}
             {target.website && (
               <a
-                href={target.website}
+                href={toExternalUrl(target.website) ?? undefined}
                 target="_blank"
                 rel="noreferrer"
                 className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"

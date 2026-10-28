@@ -1,4 +1,5 @@
 import type { Partner } from "../types";
+import { toExternalUrl } from "./url";
 
 export type VCardPartner = Pick<Partner, "company_name" | "phone" | "website" | "address" | "slug">;
 
@@ -14,7 +15,8 @@ function buildVCard(partner: VCardPartner): string {
     `ORG:${escapeVCardValue(partner.company_name)}`,
   ];
   if (partner.phone) lines.push(`TEL;TYPE=WORK,VOICE:${escapeVCardValue(partner.phone)}`);
-  if (partner.website) lines.push(`URL:${escapeVCardValue(partner.website)}`);
+  const website = toExternalUrl(partner.website);
+  if (website) lines.push(`URL:${escapeVCardValue(website)}`);
   if (partner.address) lines.push(`ADR;TYPE=WORK:;;${escapeVCardValue(partner.address)};;;;`);
   lines.push("END:VCARD");
   return lines.join("\r\n");
