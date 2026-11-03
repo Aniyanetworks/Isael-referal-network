@@ -39,7 +39,7 @@ export function LogoUpload({ value, onChange, onUploadingChange }: LogoUploadPro
       <div className="flex items-center gap-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-zinc-200 bg-zinc-50">
           {value ? (
-            <img src={value} alt="Logo preview" className="h-full w-full object-cover" />
+            <img src={value} alt="Logo preview" className="h-full w-full object-contain" />
           ) : (
             <span className="text-xs text-slate-400">No logo</span>
           )}

@@ -65,7 +65,7 @@ export default function PublicPartnerProfile() {
             <img
               src={partner.logo_url}
               alt=""
-              className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 object-cover"
+              className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
             />
             <div className="min-w-0">
               <h1 className="truncate text-2xl font-bold text-slate-900">{partner.company_name}</h1>

@@ -84,7 +84,7 @@ function NetworkCard({ network, ownPartnerId }: { network: Network; ownPartnerId
               <img
                 src={member.logo_url}
                 alt=""
-                className="h-6 w-6 shrink-0 rounded-full border border-zinc-200 object-cover"
+                className="h-6 w-6 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
               />
               <span className="truncate">{member.company_name}</span>
             </li>

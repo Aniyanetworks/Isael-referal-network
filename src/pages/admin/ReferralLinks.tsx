@@ -56,7 +56,7 @@ export default function AdminPartnerLinks() {
                   <img
                     src={partner.logo_url}
                     alt=""
-                    className="h-10 w-10 shrink-0 rounded-full border border-zinc-200 object-cover"
+                    className="h-10 w-10 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
                   />
                   <div>
                     <p className="text-sm font-medium text-slate-900">{partner.company_name}</p>

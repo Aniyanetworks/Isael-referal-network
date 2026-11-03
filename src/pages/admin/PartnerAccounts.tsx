@@ -201,7 +201,7 @@ export default function AdminPartnerAccounts() {
                       <img
                         src={partner.logo_url}
                         alt=""
-                        className="h-12 w-12 shrink-0 rounded-full border border-zinc-200 object-cover"
+                        className="h-12 w-12 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
                       />
                     )}
                     <div>
