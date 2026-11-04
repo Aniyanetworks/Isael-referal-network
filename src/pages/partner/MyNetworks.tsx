@@ -159,7 +159,7 @@ export default function PartnerMyNetworks() {
                     type="button"
                     disabled={respondMutation.isPending}
                     onClick={() => respondMutation.mutate({ networkId: m.network_id, approve: false })}
-                    className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-red-300 hover:text-red-600 disabled:opacity-50"
+                    className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
                   >
                     Decline
                   </button>
@@ -417,7 +417,7 @@ function GroupCard({
           <button
             type="button"
             onClick={() => setLeaveOpen(true)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-red-300 hover:text-red-600"
+            className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700"
           >
             Leave group
           </button>
@@ -469,7 +469,7 @@ function GroupCard({
                             onClick={() =>
                               respondMutation.mutate({ partnerId: row.partner_id, approve: false })
                             }
-                            className="rounded-md border border-zinc-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:border-red-300 hover:text-red-600 disabled:opacity-50"
+                            className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
                           >
                             Reject
                           </button>

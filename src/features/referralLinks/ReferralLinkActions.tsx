@@ -62,18 +62,18 @@ export function ReferralLinkActions({
           onFocus={(e) => e.currentTarget.select()}
           className="form-input w-full text-xs text-zinc-500 sm:w-64"
         />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-1.5">
           <button
             type="button"
             onClick={copyLink}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="flex-1 whitespace-nowrap rounded-md border border-zinc-300 px-2 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary sm:flex-none sm:px-3"
           >
             Copy Link
           </button>
           <button
             type="button"
             onClick={downloadQr}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="flex-1 whitespace-nowrap rounded-md border border-zinc-300 px-2 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary sm:flex-none sm:px-3"
           >
             Download QR
           </button>
@@ -82,7 +82,7 @@ export function ReferralLinkActions({
               type="button"
               onClick={() => setConfirmOpen(true)}
               disabled={regenerating}
-              className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary disabled:opacity-50"
+              className="flex-1 whitespace-nowrap rounded-md border border-zinc-300 px-2 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary disabled:opacity-50 sm:flex-none sm:px-3"
             >
               {regenerating ? "Regenerating..." : "Regenerate"}
             </button>

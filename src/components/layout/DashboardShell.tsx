@@ -85,7 +85,7 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 sm:px-6">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <button
               type="button"

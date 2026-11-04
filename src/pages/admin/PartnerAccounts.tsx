@@ -250,7 +250,7 @@ export default function AdminPartnerAccounts() {
                       type="button"
                       disabled={rejectMutation.isPending}
                       onClick={() => setRejectingPartner(partner)}
-                      className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-50 disabled:opacity-40"
+                      className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-40"
                     >
                       Reject
                     </button>

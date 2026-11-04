@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="py-6 text-center text-xs text-zinc-400">
-      Designed &amp; Developed by{" "}
+      <span className="block sm:inline">Designed &amp; Developed by </span>
       <a
         href="https://aniyanetworks.net/"
         target="_blank"

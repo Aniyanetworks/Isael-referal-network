@@ -30,7 +30,7 @@ export function SaveToPhoneButton({
       type="button"
       onClick={() => void handleClick()}
       disabled={saving}
-      className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary disabled:opacity-50"
+      className="inline-flex items-center justify-center gap-1.5 rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary disabled:opacity-50"
     >
       <DownloadIcon className="h-4 w-4" />
       {saving ? "Preparing..." : "Save to Phone"}

@@ -112,12 +112,12 @@ export function PartnerContactCard({
         )}
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
         {partner.phone && (
           <a
             href={`tel:${partner.phone}`}
             onClick={() => void track("contact_click", "call")}
-            className="rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary"
+            className="rounded-md bg-brand-primary px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-brand-secondary"
           >
             Call Now
           </a>
@@ -128,7 +128,7 @@ export function PartnerContactCard({
             target="_blank"
             rel="noreferrer"
             onClick={() => void track("contact_click", "website")}
-            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="rounded-md border border-zinc-300 px-4 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
           >
             Visit Website
           </a>
@@ -139,7 +139,7 @@ export function PartnerContactCard({
             target="_blank"
             rel="noreferrer"
             onClick={() => void track("contact_click", "directions")}
-            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="rounded-md border border-zinc-300 px-4 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
           >
             Get Directions
           </a>
@@ -148,7 +148,7 @@ export function PartnerContactCard({
         <button
           type="button"
           onClick={() => setRequestOpen(true)}
-          className="rounded-md border border-brand-primary px-4 py-2 text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary hover:text-white"
+          className="rounded-md border border-brand-primary px-4 py-2 text-center text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary hover:text-white"
         >
           Request Service
         </button>

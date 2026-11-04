@@ -9,7 +9,7 @@ import { DataTable, type DataTableColumn } from "../../components/ui/DataTable";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { IconButton } from "../../components/ui/IconButton";
-import { PencilIcon, TrashIcon } from "../../components/ui/icons";
+import { PencilIcon, SearchIcon, TrashIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Modal } from "../../components/ui/Modal";
 import { Pagination } from "../../components/ui/Pagination";
@@ -39,12 +39,18 @@ export default function AdminCategories() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+
+  const searchTerm = search.trim().toLowerCase();
+  const filteredCategories = (categories ?? []).filter((c) =>
+    searchTerm ? c.name.toLowerCase().includes(searchTerm) : true
+  );
 
   // Clamp in case the list shrinks (e.g. a delete) below the current page.
-  const total = categories?.length ?? 0;
+  const total = filteredCategories.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
-  const pageCategories = (categories ?? []).slice(
+  const pageCategories = filteredCategories.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
@@ -52,6 +58,11 @@ export default function AdminCategories() {
   function changePage(next: number) {
     setPage(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
   }
 
   const {
@@ -160,16 +171,31 @@ export default function AdminCategories() {
         </button>
       </div>
 
+      <div className="relative mt-4 w-full">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Search by name"
+          className="form-input w-full pl-9"
+        />
+      </div>
+
       <div className="mt-6">
         {isLoading && <LoadingSpinner label="Loading categories..." />}
         {isError && <ErrorState onRetry={() => void refetch()} />}
-        {!isLoading && !isError && categories && categories.length === 0 && (
+        {!isLoading && !isError && categories && filteredCategories.length === 0 && (
           <EmptyState
-            title="No categories yet"
-            description="Add a category so partners can be grouped by service type."
+            title={categories.length === 0 ? "No categories yet" : "No categories match your search"}
+            description={
+              categories.length === 0
+                ? "Add a category so partners can be grouped by service type."
+                : undefined
+            }
           />
         )}
-        {!isLoading && !isError && categories && categories.length > 0 && (
+        {!isLoading && !isError && categories && filteredCategories.length > 0 && (
           <div className="space-y-4">
             <DataTable columns={columns} data={pageCategories} rowKey={(row) => row.id} />
             <Pagination

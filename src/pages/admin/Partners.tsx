@@ -214,39 +214,41 @@ export default function AdminPartners() {
         </button>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-3">
-        <div className="relative max-w-xs flex-1">
+      <div className="mt-4 space-y-3">
+        <div className="relative">
           <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
             placeholder="Search by company, contact, or email"
-            className="form-input max-w-xs pl-9"
+            className="form-input w-full pl-9"
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
           />
         </div>
-        <SearchableSelect
-          className="w-52"
-          value={filters.category_id ?? ""}
-          onChange={(value) => setFilters((f) => ({ ...f, category_id: value || undefined }))}
-          placeholder="All categories"
-          clearLabel="All categories"
-          searchPlaceholder="Search categories..."
-          options={categories.map((c) => ({ value: c.id, label: c.name }))}
-        />
-        <SearchableSelect
-          className="w-44"
-          value={filters.status ?? ""}
-          onChange={(value) =>
-            setFilters((f) => ({ ...f, status: (value || undefined) as PartnerFilters["status"] }))
-          }
-          placeholder="All statuses"
-          clearLabel="All statuses"
-          options={[
-            { value: "active", label: "Active" },
-            { value: "inactive", label: "Inactive" },
-            { value: "pending", label: "Pending" },
-          ]}
-        />
+        <div className="flex flex-wrap gap-3">
+          <SearchableSelect
+            className="w-full sm:w-52"
+            value={filters.category_id ?? ""}
+            onChange={(value) => setFilters((f) => ({ ...f, category_id: value || undefined }))}
+            placeholder="All categories"
+            clearLabel="All categories"
+            searchPlaceholder="Search categories..."
+            options={categories.map((c) => ({ value: c.id, label: c.name }))}
+          />
+          <SearchableSelect
+            className="w-full sm:w-44"
+            value={filters.status ?? ""}
+            onChange={(value) =>
+              setFilters((f) => ({ ...f, status: (value || undefined) as PartnerFilters["status"] }))
+            }
+            placeholder="All statuses"
+            clearLabel="All statuses"
+            options={[
+              { value: "active", label: "Active" },
+              { value: "inactive", label: "Inactive" },
+              { value: "pending", label: "Pending" },
+            ]}
+          />
+        </div>
       </div>
 
       <div className="mt-6">

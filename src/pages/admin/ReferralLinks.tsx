@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
+import { SearchIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Pagination } from "../../components/ui/Pagination";
 import { ReferralLinkActions } from "../../features/referralLinks/ReferralLinkActions";
@@ -13,11 +14,19 @@ const PAGE_SIZE = 10;
 
 export default function AdminPartnerLinks() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const partnersQuery = useQuery({ queryKey: ["partners-all"], queryFn: () => getPartners() });
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
 
-  const partners = partnersQuery.data ?? [];
+  const allPartners = partnersQuery.data ?? [];
   const categoryNameById = new Map((categoriesQuery.data ?? []).map((c) => [c.id, c.name]));
+
+  const searchTerm = search.trim().toLowerCase();
+  const partners = allPartners.filter((p) => {
+    if (!searchTerm) return true;
+    const categoryName = categoryNameById.get(p.category_id) ?? "";
+    return `${p.company_name} ${categoryName}`.toLowerCase().includes(searchTerm);
+  });
 
   // Clamp in case the partner count shrinks (e.g. a delete) below the current page.
   const pageCount = Math.max(1, Math.ceil(partners.length / PAGE_SIZE));
@@ -27,6 +36,11 @@ export default function AdminPartnerLinks() {
   function changePage(next: number) {
     setPage(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
   }
 
   const isLoading = partnersQuery.isLoading || categoriesQuery.isLoading;
@@ -39,11 +53,27 @@ export default function AdminPartnerLinks() {
         Every partner has one permanent link - copy or download the QR and hand it to them.
       </p>
 
+      <div className="relative mt-4 w-full">
+        <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Search by company or category"
+          className="form-input w-full pl-9"
+        />
+      </div>
+
       <div className="mt-6">
         {isLoading && <LoadingSpinner label="Loading partner links..." />}
         {isError && <ErrorState onRetry={() => void partnersQuery.refetch()} />}
         {!isLoading && !isError && partners.length === 0 && (
-          <EmptyState title="No partners yet" description="Add a partner first to generate their link." />
+          <EmptyState
+            title={allPartners.length === 0 ? "No partners yet" : "No partners match your search"}
+            description={
+              allPartners.length === 0 ? "Add a partner first to generate their link." : undefined
+            }
+          />
         )}
         {!isLoading && !isError && partners.length > 0 && (
           <div className="space-y-4">
