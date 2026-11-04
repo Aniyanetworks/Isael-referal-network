@@ -7,6 +7,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PersistGate } from "redux-persist/integration/react";
 import { Provider } from "react-redux";
 import { persistor, store } from "./redux/store.ts";
+import { registerServiceWorker } from "./lib/registerServiceWorker.ts";
+
+registerServiceWorker();
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(

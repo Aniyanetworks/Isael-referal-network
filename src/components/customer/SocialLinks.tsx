@@ -17,10 +17,13 @@ export function SocialLinks({
   links,
   companyName,
   className = "",
+  onLinkClick,
 }: {
   links: SocialLinksData | null | undefined;
   companyName: string;
   className?: string;
+  /** Called (fire-and-forget) with which network was opened, for contact_click tracking. */
+  onLinkClick?: (network: keyof SocialLinksData) => void;
 }) {
   const items = NETWORKS.flatMap(({ key, label, Icon }) => {
     const href = toExternalUrl(links?.[key]);
@@ -38,6 +41,7 @@ export function SocialLinks({
           rel="noopener noreferrer"
           aria-label={`${companyName} on ${label}`}
           title={label}
+          onClick={() => onLinkClick?.(key)}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-zinc-200 text-slate-600 transition-colors hover:border-brand-primary hover:bg-brand-primary/5 hover:text-brand-primary"
         >
           <Icon className="h-[18px] w-[18px]" aria-hidden="true" />

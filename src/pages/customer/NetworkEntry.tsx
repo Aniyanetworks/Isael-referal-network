@@ -1,26 +1,34 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { PartnerContactCard } from "../../components/customer/PartnerContactCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Footer } from "../../components/ui/Footer";
 import { SearchIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Logo } from "../../components/ui/Logo";
+import { detectDevice, getClientIp, getVisitorId } from "../../lib/visitor";
 import { getCategories } from "../../services/categories.service";
 import { getNetworkBySlug, getNetworkMembers } from "../../services/networks.service";
+import { getPartnerBySlug } from "../../services/partners.service";
+import { recordReferralEvent } from "../../services/referralEvents.service";
 
 /**
  * Entry point for a network's shareable link: /network/:networkSlug. Shows
- * every partner in that network - not tied to any single referrer, unlike
- * /ref/:partnerSlug. No click is recorded here (network-level analytics
- * aren't tracked yet).
+ * every partner in that network. An optional ?ref=<partner-slug> (e.g. a
+ * business sharing this group's link themselves, instead of the group's
+ * plain QR) attributes every event on this visit to that business -
+ * entirely optional, so every existing printed/shared group link with no
+ * such param keeps working exactly as before.
  */
 export default function NetworkEntry() {
   const { networkSlug } = useParams<{ networkSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const refSlug = searchParams.get("ref");
   const topRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const visitRecordedRef = useRef(false);
 
   const networkQuery = useQuery({
     queryKey: ["public-network", networkSlug],
@@ -36,11 +44,36 @@ export default function NetworkEntry() {
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
 
+  // Resolve ?ref= to a partner id. Not restricted to this network's own
+  // members - a business can share a group's link with its own customers
+  // even for a group it doesn't belong to.
+  const referrerQuery = useQuery({
+    queryKey: ["public-partner", refSlug],
+    queryFn: () => getPartnerBySlug(refSlug ?? ""),
+    enabled: Boolean(refSlug),
+  });
+  const referrerPartnerId = refSlug ? referrerQuery.data?.id ?? null : null;
+
   useEffect(() => {
-    if (selectedId) return;
-    const first = membersQuery.data?.[0];
-    if (first) setSelectedId(first.id);
-  }, [membersQuery.data, selectedId]);
+    if (visitRecordedRef.current) return;
+    if (!networkQuery.data) return;
+    if (refSlug && referrerQuery.isLoading) return; // wait for ?ref= to resolve first
+    visitRecordedRef.current = true;
+
+    const networkId = networkQuery.data.id;
+    void (async () => {
+      const ip = await getClientIp();
+      void recordReferralEvent({
+        eventType: "directory_visit",
+        networkId,
+        referrerPartnerId,
+        visitorId: getVisitorId(),
+        device: detectDevice(),
+        userAgent: navigator.userAgent,
+        ipAddress: ip,
+      });
+    })();
+  }, [networkQuery.data, refSlug, referrerQuery.isLoading, referrerPartnerId]);
 
   if (networkQuery.isLoading) {
     return (
@@ -64,11 +97,14 @@ export default function NetworkEntry() {
   const network = networkQuery.data;
   const categoryNameById = new Map((categoriesQuery.data ?? []).map((c) => [c.id, c.name]));
   const members = membersQuery.data ?? [];
-  const selected = members.find((p) => p.id === selectedId) ?? null;
+  // Derived, not synced via an effect: defaults to the first member until
+  // the visitor actually picks one, with no extra render in between.
+  const effectiveSelectedId = selectedId ?? members[0]?.id ?? null;
+  const selected = members.find((p) => p.id === effectiveSelectedId) ?? null;
 
   const searchTerm = search.trim().toLowerCase();
   const others = members
-    .filter((p) => p.id !== selectedId)
+    .filter((p) => p.id !== effectiveSelectedId)
     .filter((p) => {
       if (!searchTerm) return true;
       const categoryName = categoryNameById.get(p.category_id) ?? "";
@@ -92,6 +128,8 @@ export default function NetworkEntry() {
             <PartnerContactCard
               partner={selected}
               categoryName={categoryNameById.get(selected.category_id)}
+              networkId={network.id}
+              referrerPartnerId={referrerPartnerId}
             />
           </div>
         )}

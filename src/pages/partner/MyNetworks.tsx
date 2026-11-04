@@ -13,6 +13,7 @@ import { GroupForm, type GroupFormValues } from "../../features/networks/GroupFo
 import { ReferralLinkActions } from "../../features/referralLinks/ReferralLinkActions";
 import { useAuth } from "../../hooks/useAuth";
 import { getPartners } from "../../services/partners.service";
+import { getReferralEventCountsForNetwork } from "../../services/referralEvents.service";
 import {
   buildNetworkUrl,
   createGroup,
@@ -305,6 +306,11 @@ function GroupCard({
     queryFn: () => getNetworkMembershipsDetailed(network.id),
     enabled: managing,
   });
+  const eventCountsQuery = useQuery({
+    queryKey: ["network-event-counts", network.id],
+    queryFn: () => getReferralEventCountsForNetwork(network.id),
+    enabled: managing,
+  });
 
   function invalidateAll() {
     queryClient.invalidateQueries({ queryKey: ["network-members-detailed", network.id] });
@@ -420,6 +426,15 @@ function GroupCard({
 
       {managing && (
         <div className="mt-4 space-y-4 border-t border-zinc-100 pt-4">
+          {eventCountsQuery.data && (
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <GroupStat label="Directory visits" value={eventCountsQuery.data.directoryVisits} />
+              <GroupStat label="Profile views" value={eventCountsQuery.data.profileViews} />
+              <GroupStat label="Contact clicks" value={eventCountsQuery.data.contactClicks} />
+              <GroupStat label="Service requests" value={eventCountsQuery.data.serviceRequests} />
+            </div>
+          )}
+
           {membersQuery.isLoading && <LoadingSpinner label="Loading members..." />}
           {membersQuery.isError && <ErrorState onRetry={() => void membersQuery.refetch()} />}
 
@@ -603,6 +618,15 @@ function InviteBox({
           {inviteMutation.isPending ? "Inviting..." : "Invite"}
         </button>
       </div>
+    </div>
+  );
+}
+
+function GroupStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg bg-zinc-50 p-2.5 text-center">
+      <p className="text-lg font-semibold text-slate-900">{value}</p>
+      <p className="text-[11px] text-zinc-500">{label}</p>
     </div>
   );
 }

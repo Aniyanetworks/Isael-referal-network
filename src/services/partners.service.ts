@@ -96,3 +96,13 @@ export async function deletePartner(id: string): Promise<void> {
   const { error } = await supabase.from("partners").delete().eq("id", id);
   if (error) throw error;
 }
+
+/** Count-only query for the admin sidebar's "Partner Approvals" badge. */
+export async function getPendingPartnersCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from("partners")
+    .select("*", { count: "exact", head: true })
+    .eq("status", "pending");
+  if (error) throw error;
+  return count ?? 0;
+}

@@ -10,9 +10,11 @@ import AdminAnalytics from "../pages/admin/Analytics";
 import AdminPartnerAccounts from "../pages/admin/PartnerAccounts";
 import AdminNetworks from "../pages/admin/Networks";
 import AdminNetworkDetail from "../pages/admin/NetworkDetail";
+import AdminLeads from "../pages/admin/Leads";
 import PartnerDashboard from "../pages/partner/Dashboard";
 import PartnerProfile from "../pages/partner/Profile";
 import PartnerMyNetworks from "../pages/partner/MyNetworks";
+import PartnerLeads from "../pages/partner/Leads";
 import ReferralEntry from "../pages/customer/ReferralEntry";
 import PublicPartnerProfile from "../pages/customer/PublicPartnerProfile";
 import NetworkEntry from "../pages/customer/NetworkEntry";
@@ -55,6 +57,7 @@ const router = createBrowserRouter([
           { path: "networks", element: <AdminNetworks /> },
           { path: "networks/:networkId", element: <AdminNetworkDetail /> },
           { path: "referral-links", element: <AdminReferralLinks /> },
+          { path: "leads", element: <AdminLeads /> },
           { path: "analytics", element: <AdminAnalytics /> },
         ],
       },
@@ -68,6 +71,7 @@ const router = createBrowserRouter([
         element: <PartnerLayout />,
         children: [
           { path: "dashboard", element: <PartnerDashboard /> },
+          { path: "leads", element: <PartnerLeads /> },
           { path: "profile", element: <PartnerProfile /> },
           { path: "network", element: <PartnerMyNetworks /> },
         ],

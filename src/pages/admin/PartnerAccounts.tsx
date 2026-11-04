@@ -15,6 +15,7 @@ import type { Partner, Profile } from "../../types";
 
 function invalidatePartnerQueries(queryClient: ReturnType<typeof useQueryClient>) {
   queryClient.invalidateQueries({ queryKey: ["pending-partners"] });
+  queryClient.invalidateQueries({ queryKey: ["pending-partners-count"] });
   queryClient.invalidateQueries({ queryKey: ["partners"] });
   queryClient.invalidateQueries({ queryKey: ["partners-all"] });
 }

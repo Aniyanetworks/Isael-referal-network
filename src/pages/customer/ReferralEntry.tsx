@@ -140,6 +140,7 @@ export default function ReferralEntry() {
           <PartnerContactCard
             partner={selected ?? referrer}
             categoryName={categoryNameById.get((selected ?? referrer).category_id)}
+            referrerPartnerId={referrer.id}
           />
         </div>
 

@@ -7,6 +7,9 @@ import { MenuIcon, XIcon } from "../ui/icons";
 export interface NavItem {
   to: string;
   label: string;
+  /** A small count pill next to the label (e.g. new leads, pending
+   * approvals) - omitted or 0 hides it. */
+  badge?: number;
 }
 
 interface DashboardShellProps {
@@ -55,14 +58,27 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
               to={item.to}
               onClick={() => setDrawerOpen(false)}
               className={({ isActive }) =>
-                `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                `flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-brand-primary text-white"
                     : "text-zinc-600 hover:bg-brand-primary/10 hover:text-brand-primary"
                 }`
               }
             >
-              {item.label}
+              {({ isActive }) => (
+                <>
+                  <span>{item.label}</span>
+                  {Boolean(item.badge) && (
+                    <span
+                      className={`ml-2 rounded-full px-1.5 py-0.5 text-xs font-semibold leading-none ${
+                        isActive ? "bg-white/25 text-white" : "bg-red-500 text-white"
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
