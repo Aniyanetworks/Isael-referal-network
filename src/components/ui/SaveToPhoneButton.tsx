@@ -3,11 +3,19 @@ import { toast } from "sonner";
 import { downloadVCard, type VCardPartner } from "../../lib/vcard";
 import { DownloadIcon } from "./icons";
 
-export function SaveToPhoneButton({ partner }: { partner: VCardPartner }) {
+export function SaveToPhoneButton({
+  partner,
+  onSave,
+}: {
+  partner: VCardPartner;
+  /** Called (fire-and-forget) once a save is attempted, for contact_click tracking. */
+  onSave?: () => void;
+}) {
   const [saving, setSaving] = useState(false);
 
   async function handleClick() {
     setSaving(true);
+    onSave?.();
     try {
       await downloadVCard(partner);
     } catch {

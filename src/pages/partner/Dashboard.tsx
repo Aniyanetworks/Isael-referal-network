@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
@@ -8,6 +9,7 @@ import { ReferralLinkActions } from "../../features/referralLinks/ReferralLinkAc
 import { useAuth } from "../../hooks/useAuth";
 import { buildPartnerReferralUrl, getClicksTimeseries, getPartnerOwnOverview } from "../../services/partnerReferrals.service";
 import { getPartnerById } from "../../services/partners.service";
+import { getLeadsForPartner, getReferralEventCountsAsReferrer } from "../../services/referralEvents.service";
 
 const SERIES_COLOR = "#079992";
 
@@ -31,9 +33,24 @@ export default function PartnerDashboard() {
     queryFn: () => getClicksTimeseries({}, "day"),
     enabled: Boolean(partnerId),
   });
+  const leadsQuery = useQuery({
+    queryKey: ["leads", partnerId],
+    queryFn: () => getLeadsForPartner(partnerId),
+    enabled: Boolean(partnerId),
+  });
+  // Events where this partner was the REFERRER - i.e. someone they shared
+  // a link with went on to view/contact/request another business. They
+  // see counts only here, never who the customer was.
+  const referralCountsQuery = useQuery({
+    queryKey: ["referral-event-counts-as-referrer", partnerId],
+    queryFn: () => getReferralEventCountsAsReferrer(partnerId),
+    enabled: Boolean(partnerId),
+  });
 
   const isLoading = partnerQuery.isLoading || overviewQuery.isLoading || timeseriesQuery.isLoading;
   const isError = partnerQuery.isError || overviewQuery.isError || timeseriesQuery.isError;
+  const leads = leadsQuery.data ?? [];
+  const newLeadsCount = leads.filter((l) => l.status === "new").length;
   const chartData = (timeseriesQuery.data ?? []).map((point) => ({
     date: point.bucket,
     clicks: point.count,
@@ -79,10 +96,40 @@ export default function PartnerDashboard() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatCard label="Clicks generated" value={overviewQuery.data.clicksGenerated} />
-            <StatCard label="This month" value={overviewQuery.data.clicksThisMonth} />
+            <StatCard label="Clicks this month" value={overviewQuery.data.clicksThisMonth} />
+            <Link to="/partner/leads" className="block">
+              <StatCard
+                label="New leads"
+                value={newLeadsCount}
+                hint={`${leads.length} total`}
+                accent="secondary"
+              />
+            </Link>
           </div>
+
+          {referralCountsQuery.data && (
+            <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <h2 className="text-sm font-semibold text-slate-900">Your Referrals</h2>
+              <p className="mt-1 text-xs text-zinc-500">
+                What customers did after reaching another business through your link or a group
+                you're in.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <StatCard label="Profile views" value={referralCountsQuery.data.profileViews} />
+                <StatCard label="Contact clicks" value={referralCountsQuery.data.contactClicks} />
+                <StatCard
+                  label="Service requests"
+                  value={referralCountsQuery.data.serviceRequests}
+                />
+                <StatCard
+                  label="Directory visits"
+                  value={referralCountsQuery.data.directoryVisits}
+                />
+              </div>
+            </div>
+          )}
 
           <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
             <h2 className="text-sm font-semibold text-slate-900">Your clicks over time</h2>

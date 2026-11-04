@@ -102,23 +102,37 @@ export async function getNetworkMemberIds(networkId: string): Promise<string[]> 
 }
 
 export async function getNetworkMembers(networkId: string): Promise<Partner[]> {
-  const { data, error } = await supabase
-    .from("network_partners")
-    .select("partners(*)")
-    .eq("network_id", networkId)
-    .eq("status", "active");
+  // Two plain queries rather than a single PostgREST embedded-resource
+  // join (`.select("partners(*)")`): with three overlapping RLS policies
+  // on network_partners, the embedded join was triggering a Postgres
+  // recursion error for networks with real rows, even after the policy
+  // fix in migration 0011 - this sidesteps that failure mode entirely.
+  const partnerIds = await getNetworkMemberIds(networkId);
+  if (partnerIds.length === 0) return [];
+
+  const { data, error } = await supabase.from("partners").select("*").in("id", partnerIds);
   if (error) throw error;
-  return (data ?? []).map((row) => row.partners as unknown as Partner).filter(Boolean);
+  return data ?? [];
 }
 
 export async function getNetworksForPartner(partnerId: string): Promise<Network[]> {
-  const { data, error } = await supabase
+  // Two plain queries rather than an embedded-resource join - see
+  // getNetworkMembers above.
+  const { data: memberships, error } = await supabase
     .from("network_partners")
-    .select("networks(*)")
+    .select("network_id")
     .eq("partner_id", partnerId)
     .eq("status", "active");
   if (error) throw error;
-  return (data ?? []).map((row) => row.networks as unknown as Network).filter(Boolean);
+  const networkIds = (memberships ?? []).map((m) => m.network_id);
+  if (networkIds.length === 0) return [];
+
+  const { data, error: networksError } = await supabase
+    .from("networks")
+    .select("*")
+    .in("id", networkIds);
+  if (networksError) throw networksError;
+  return data ?? [];
 }
 
 /** Admin add-member (direct upsert; admin bypasses RLS). Reinstates a
@@ -279,16 +293,32 @@ export interface NetworkMembershipWithPartner extends NetworkMembership {
 
 /** Every membership row for a network, any status - RLS limits what comes
  * back to what the caller may see (active rows to anyone, every row to an
- * owner/admin of that network, their own row always). */
+ * owner/admin of that network, their own row always). Two plain queries
+ * rather than an embedded-resource join - see getNetworkMembers above. */
 export async function getNetworkMembershipsDetailed(
   networkId: string
 ): Promise<NetworkMembershipWithPartner[]> {
-  const { data, error } = await supabase
+  const { data: memberships, error } = await supabase
     .from("network_partners")
-    .select("*, partners(*)")
+    .select("*")
     .eq("network_id", networkId);
   if (error) throw error;
-  return (data ?? []) as unknown as NetworkMembershipWithPartner[];
+  if (!memberships || memberships.length === 0) return [];
+
+  const partnerIds = memberships.map((m) => m.partner_id);
+  const { data: partners, error: partnersError } = await supabase
+    .from("partners")
+    .select("*")
+    .in("id", partnerIds);
+  if (partnersError) throw partnersError;
+
+  const partnerById = new Map((partners ?? []).map((p) => [p.id, p]));
+  return memberships
+    .map((m) => {
+      const partner = partnerById.get(m.partner_id);
+      return partner ? { ...m, partners: partner } : null;
+    })
+    .filter((row): row is NetworkMembershipWithPartner => row !== null);
 }
 
 export interface NetworkMembershipWithNetwork extends NetworkMembership {
@@ -300,11 +330,28 @@ export interface NetworkMembershipWithNetwork extends NetworkMembership {
 export async function getMembershipsForPartner(
   partnerId: string
 ): Promise<NetworkMembershipWithNetwork[]> {
-  const { data, error } = await supabase
+  // Two plain queries rather than an embedded-resource join - see
+  // getNetworkMembers above.
+  const { data: memberships, error } = await supabase
     .from("network_partners")
-    .select("*, networks(*)")
+    .select("*")
     .eq("partner_id", partnerId)
     .neq("status", "removed");
   if (error) throw error;
-  return (data ?? []) as unknown as NetworkMembershipWithNetwork[];
+  if (!memberships || memberships.length === 0) return [];
+
+  const networkIds = memberships.map((m) => m.network_id);
+  const { data: networks, error: networksError } = await supabase
+    .from("networks")
+    .select("*")
+    .in("id", networkIds);
+  if (networksError) throw networksError;
+
+  const networkById = new Map((networks ?? []).map((n) => [n.id, n]));
+  return memberships
+    .map((m) => {
+      const network = networkById.get(m.network_id);
+      return network ? { ...m, networks: network } : null;
+    })
+    .filter((row): row is NetworkMembershipWithNetwork => row !== null);
 }
