@@ -17,7 +17,7 @@ export function PartnerContactCard({
         <img
           src={partner.logo_url}
           alt=""
-          className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 object-cover"
+          className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
         />
         <div className="min-w-0">
           <h3 className="truncate text-xl font-bold text-slate-900">{partner.company_name}</h3>

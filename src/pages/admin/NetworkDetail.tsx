@@ -112,7 +112,7 @@ export default function AdminNetworkDetail() {
                     <img
                       src={partner.logo_url}
                       alt=""
-                      className="h-6 w-6 shrink-0 rounded-full border border-zinc-200 object-cover"
+                      className="h-6 w-6 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
                     />
                     <span className="truncate text-slate-700">{partner.company_name}</span>
                   </div>
@@ -203,7 +203,7 @@ function AddMemberModal({
                 <img
                   src={partner.logo_url}
                   alt=""
-                  className="h-6 w-6 shrink-0 rounded-full border border-zinc-200 object-cover"
+                  className="h-6 w-6 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
                 />
                 <span className="truncate text-slate-700">{partner.company_name}</span>
               </div>

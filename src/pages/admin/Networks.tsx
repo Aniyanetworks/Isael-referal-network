@@ -108,7 +108,7 @@ export default function AdminNetworks() {
     if (editingNetwork) {
       updateMutation.mutate({ id: editingNetwork.id, name: values.name });
     } else {
-      createMutation.mutate({ name: values.name });
+      createMutation.mutate({ name: values.name, description: "", join_mode: "invite_only" });
     }
   }
 

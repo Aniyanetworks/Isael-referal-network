@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { AuthShell } from "../../components/layout/AuthShell";
+import { LogoUpload } from "../../components/ui/LogoUpload";
 import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { Field } from "../../features/partners/PartnerForm";
 import { useAuth } from "../../hooks/useAuth";
@@ -36,6 +37,7 @@ export default function Signup() {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [needsEmailConfirm, setNeedsEmailConfirm] = useState(false);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
   const categories = categoriesQuery.data ?? [];
@@ -161,14 +163,27 @@ export default function Signup() {
           <Field label="Description">
             <textarea rows={3} className="form-input" {...register("description")} />
           </Field>
-          <Field label="Logo URL">
-            <input className="form-input" {...register("logo_url")} />
-          </Field>
+          <div className="text-sm font-medium text-slate-700">
+            Logo
+            <div className="mt-1 font-normal">
+              <Controller
+                control={control}
+                name="logo_url"
+                render={({ field }) => (
+                  <LogoUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    onUploadingChange={setLogoUploading}
+                  />
+                )}
+              />
+            </div>
+          </div>
 
           {formError && <p className="text-sm text-red-600">{formError}</p>}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || logoUploading}
             className="w-full rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary disabled:opacity-50"
           >
             {isSubmitting ? "Submitting..." : "Submit application"}

@@ -48,7 +48,10 @@ interface PartnerFormProps {
   submitLabel: string;
   submitting: boolean;
   onSubmit: (input: PartnerInput) => void;
-  onCancel: () => void;
+  onCancel?: () => void;
+  /** Hides the Status field - for a partner editing their own profile, where
+   * only an admin may approve/activate/deactivate (also enforced server-side). */
+  hideStatus?: boolean;
 }
 
 export function PartnerForm({
@@ -58,6 +61,7 @@ export function PartnerForm({
   submitting,
   onSubmit,
   onCancel,
+  hideStatus = false,
 }: PartnerFormProps) {
   const {
     register,
@@ -127,24 +131,26 @@ export function PartnerForm({
             )}
           />
         </Field>
-        <Field label="Status">
-          <Controller
-            control={control}
-            name="status"
-            render={({ field }) => (
-              <SearchableSelect
-                value={field.value}
-                onChange={(value) => field.onChange(value as PartnerFormValues["status"])}
-                placeholder="Select status"
-                options={[
-                  { value: "active", label: "Active" },
-                  { value: "inactive", label: "Inactive" },
-                  { value: "pending", label: "Pending" },
-                ]}
-              />
-            )}
-          />
-        </Field>
+        {!hideStatus && (
+          <Field label="Status">
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <SearchableSelect
+                  value={field.value}
+                  onChange={(value) => field.onChange(value as PartnerFormValues["status"])}
+                  placeholder="Select status"
+                  options={[
+                    { value: "active", label: "Active" },
+                    { value: "inactive", label: "Inactive" },
+                    { value: "pending", label: "Pending" },
+                  ]}
+                />
+              )}
+            />
+          </Field>
+        )}
       </div>
 
       <Field label="Description">
@@ -180,13 +186,15 @@ export function PartnerForm({
       </div>
 
       <div className="flex justify-end gap-3 pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700"
-        >
-          Cancel
-        </button>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-slate-700"
+          >
+            Cancel
+          </button>
+        )}
         <button
           type="submit"
           disabled={submitting || logoUploading}

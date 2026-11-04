@@ -106,7 +106,7 @@ export default function ReferralLanding() {
             <img
               src={target.logo_url}
               alt=""
-              className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 object-cover"
+              className="h-16 w-16 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
             />
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary">
@@ -195,7 +195,7 @@ export default function ReferralLanding() {
                   <img
                     src={partner.logo_url}
                     alt=""
-                    className="h-10 w-10 shrink-0 rounded-full border border-zinc-200 object-cover"
+                    className="h-10 w-10 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
                   />
                   <div className="min-w-0">
                     <p className="truncate font-medium text-slate-900">{partner.company_name}</p>

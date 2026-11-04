@@ -141,7 +141,7 @@ export default function AdminPartners() {
           <img
             src={row.logo_url}
             alt=""
-            className="h-8 w-8 shrink-0 rounded-full border border-zinc-200 object-cover"
+            className="h-8 w-8 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
           />
           <span className="font-medium text-slate-900">{row.company_name}</span>
         </div>
