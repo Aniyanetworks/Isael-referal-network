@@ -2,6 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "../layouts/MainLayOut";
 import Login from "../pages/auth/Login";
 import Signup from "../pages/auth/Signup";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
 import AdminDashboard from "../pages/admin/Dashboard";
 import AdminPartners from "../pages/admin/Partners";
 import AdminCategories from "../pages/admin/Categories";
@@ -25,6 +27,8 @@ import { PartnerLayout } from "../components/layout/PartnerLayout";
 const router = createBrowserRouter([
   { path: "login", element: <Login /> },
   { path: "signup", element: <Signup /> },
+  { path: "forgot-password", element: <ForgotPassword /> },
+  { path: "reset-password", element: <ResetPassword /> },
   {
     element: <MainLayout />,
     children: [

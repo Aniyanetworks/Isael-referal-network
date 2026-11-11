@@ -11,6 +11,8 @@ export interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<Profile | null>;
   signUp: (email: string, password: string) => Promise<Session | null>;
   signOut: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -72,7 +74,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   }
 
-  const value: AuthContextValue = { session, profile, loading, signIn, signUp, signOut };
+  async function resetPasswordForEmail(email: string) {
+    const siteUrl = import.meta.env.VITE_SITE_URL.replace(/\/+$/, "");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${siteUrl}/reset-password`,
+    });
+    if (error) throw error;
+  }
+
+  async function updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+
+  const value: AuthContextValue = {
+    session,
+    profile,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    resetPasswordForEmail,
+    updatePassword,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
