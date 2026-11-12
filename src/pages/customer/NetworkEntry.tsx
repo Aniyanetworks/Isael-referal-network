@@ -5,9 +5,10 @@ import { toast } from "sonner";
 import { PartnerContactCard } from "../../components/customer/PartnerContactCard";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Footer } from "../../components/ui/Footer";
-import { BuildingIcon, ChevronLeftIcon, ChevronRightIcon, SearchIcon } from "../../components/ui/icons";
+import { BuildingIcon, SearchIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Logo } from "../../components/ui/Logo";
+import { ScrollCarousel } from "../../components/ui/ScrollCarousel";
 import { useAuth } from "../../hooks/useAuth";
 import { detectDevice, getClientIp, getVisitorId } from "../../lib/visitor";
 import { getCategories } from "../../services/categories.service";
@@ -37,11 +38,8 @@ export default function NetworkEntry() {
   const [searchParams] = useSearchParams();
   const refSlug = searchParams.get("ref");
   const detailsRef = useRef<HTMLDivElement>(null);
-  const badgeScrollRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
   const visitRecordedRef = useRef(false);
   const { profile } = useAuth();
   const queryClient = useQueryClient();
@@ -91,24 +89,6 @@ export default function NetworkEntry() {
   });
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
-
-  // Arrow visibility for the mobile badge carousel below - re-checked
-  // whenever the scrollable content itself changes (members load in, or a
-  // search narrows the list), not just when the visitor scrolls.
-  function updateBadgeScrollState() {
-    const el = badgeScrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-  }
-
-  useEffect(() => {
-    updateBadgeScrollState();
-  }, [membersQuery.data, search]);
-
-  function scrollBadges(direction: "left" | "right") {
-    badgeScrollRef.current?.scrollBy({ left: direction === "left" ? -160 : 160, behavior: "smooth" });
-  }
 
   // Other groups on the platform, so a visitor can discover more than just
   // the one this link happened to point at.
@@ -244,65 +224,39 @@ export default function NetworkEntry() {
               </div>
             </div>
 
-            <div className="animate-fade-in-up relative mx-auto mt-3 max-w-2xl" style={{ animationDelay: "0.1s" }}>
+            <div className="animate-fade-in-up mx-auto mt-3 max-w-2xl" style={{ animationDelay: "0.1s" }}>
               {visibleMembers.length === 0 ? (
                 <EmptyState title="No partners match your search" />
               ) : (
-                <>
-                  {canScrollLeft && (
-                    <button
-                      type="button"
-                      onClick={() => scrollBadges("left")}
-                      aria-label="Scroll left"
-                      className="absolute -left-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-500 shadow-sm sm:hidden"
-                    >
-                      <ChevronLeftIcon className="h-4 w-4" />
-                    </button>
-                  )}
-                  {canScrollRight && (
-                    <button
-                      type="button"
-                      onClick={() => scrollBadges("right")}
-                      aria-label="Scroll right"
-                      className="absolute -right-2 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-500 shadow-sm sm:hidden"
-                    >
-                      <ChevronRightIcon className="h-4 w-4" />
-                    </button>
-                  )}
-                  <div
-                    ref={badgeScrollRef}
-                    onScroll={updateBadgeScrollState}
-                    className="flex gap-2 overflow-x-auto scroll-smooth [scrollbar-width:none] sm:flex-wrap sm:overflow-visible [&::-webkit-scrollbar]:hidden"
-                  >
-                    {visibleMembers.map((partner) => {
-                      const isSelected = partner.id === selectedId;
-                      return (
-                        <button
-                          key={partner.id}
-                          type="button"
-                          onClick={() => setSelectedId(isSelected ? null : partner.id)}
-                          className={`flex shrink-0 items-center gap-2 rounded-full border bg-white py-1.5 pl-1.5 pr-3 text-left text-sm shadow-sm transition-all ${
-                            isSelected
-                              ? "border-brand-primary ring-2 ring-brand-primary/30"
-                              : "border-zinc-200 hover:border-brand-primary/40"
-                          }`}
-                        >
-                          <img
-                            src={partner.logo_url}
-                            alt=""
-                            className="h-7 w-7 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
-                          />
-                          <span className="whitespace-nowrap font-medium text-slate-900">
-                            {partner.company_name}
-                          </span>
-                          <span className="whitespace-nowrap text-xs text-zinc-400">
-                            {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
+                <ScrollCarousel>
+                  {visibleMembers.map((partner) => {
+                    const isSelected = partner.id === selectedId;
+                    return (
+                      <button
+                        key={partner.id}
+                        type="button"
+                        onClick={() => setSelectedId(isSelected ? null : partner.id)}
+                        className={`flex shrink-0 items-center gap-2 rounded-full border bg-white py-1.5 pl-1.5 pr-3 text-left text-sm shadow-sm transition-all ${
+                          isSelected
+                            ? "border-brand-primary ring-2 ring-brand-primary/30"
+                            : "border-zinc-200 hover:border-brand-primary/40"
+                        }`}
+                      >
+                        <img
+                          src={partner.logo_url}
+                          alt=""
+                          className="h-7 w-7 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
+                        />
+                        <span className="whitespace-nowrap font-medium text-slate-900">
+                          {partner.company_name}
+                        </span>
+                        <span className="whitespace-nowrap text-xs text-zinc-400">
+                          {categoryNameById.get(partner.category_id) ?? "Uncategorized"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </ScrollCarousel>
               )}
             </div>
 
@@ -324,23 +278,25 @@ export default function NetworkEntry() {
             <p className="text-xs font-semibold uppercase tracking-wide text-zinc-400">
               Other groups on Konexigo
             </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {otherNetworks.map((n) => (
-                <Link
-                  key={n.id}
-                  to={`/network/${n.slug}`}
-                  className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white py-1.5 pl-1.5 pr-3 text-sm shadow-sm transition-all hover:border-brand-primary/40"
-                >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50">
-                    <BuildingIcon className="h-4 w-4 text-zinc-400" />
-                  </span>
-                  <span className="font-medium text-slate-900">{n.name}</span>
-                  <span className="text-xs text-zinc-400">
-                    {memberCountsQuery.data?.get(n.id) ?? 0}{" "}
-                    {memberCountsQuery.data?.get(n.id) === 1 ? "business" : "businesses"}
-                  </span>
-                </Link>
-              ))}
+            <div className="mt-2">
+              <ScrollCarousel>
+                {otherNetworks.map((n) => (
+                  <Link
+                    key={n.id}
+                    to={`/network/${n.slug}`}
+                    className="flex shrink-0 items-center gap-2 rounded-full border border-zinc-200 bg-white py-1.5 pl-1.5 pr-3 text-sm shadow-sm transition-all hover:border-brand-primary/40"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50">
+                      <BuildingIcon className="h-4 w-4 text-zinc-400" />
+                    </span>
+                    <span className="whitespace-nowrap font-medium text-slate-900">{n.name}</span>
+                    <span className="whitespace-nowrap text-xs text-zinc-400">
+                      {memberCountsQuery.data?.get(n.id) ?? 0}{" "}
+                      {memberCountsQuery.data?.get(n.id) === 1 ? "business" : "businesses"}
+                    </span>
+                  </Link>
+                ))}
+              </ScrollCarousel>
             </div>
           </div>
         )}

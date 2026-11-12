@@ -8,6 +8,7 @@ import {
   respondToNetworkMembership,
   type OwnerNotification,
 } from "../../services/networks.service";
+import { InstallButton } from "../ui/InstallButton";
 import { Logo } from "../ui/Logo";
 import { BellIcon, MenuIcon, XIcon } from "../ui/icons";
 
@@ -106,6 +107,7 @@ export function DashboardShell({ navItems }: DashboardShellProps) {
             <p className="hidden text-sm text-zinc-500 sm:block">Referral Partner Directory</p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            <InstallButton />
             {partnerId && <NotificationBell partnerId={partnerId} />}
             <span className="hidden max-w-[10rem] truncate text-sm text-zinc-600 sm:inline md:max-w-none">
               {profile?.email}

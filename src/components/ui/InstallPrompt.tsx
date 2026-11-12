@@ -1,24 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useInstallPrompt } from "../../hooks/useInstallPrompt";
 import { DownloadIcon, XIcon } from "./icons";
+import { installHint } from "./installHint";
 
 const DISMISSED_KEY = "konexigo_install_dismissed";
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
-
-function isStandalone(): boolean {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    // iOS Safari's own flag - not covered by the standard media query there.
-    (navigator as unknown as { standalone?: boolean }).standalone === true
-  );
-}
-
-function isIos(): boolean {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
-}
 
 function wasDismissed(): boolean {
   try {
@@ -41,33 +26,22 @@ function dismiss() {
 /**
  * A small "Install app" banner. QR access never requires installing - this
  * is purely an optional convenience offered once, dismissible, and never
- * shown again after that (or once the app is already installed).
+ * shown again after that (or once the app is already installed). The
+ * header's InstallButton covers the on-demand case this banner itself
+ * doesn't: once dismissed here, it's gone for good even if the person
+ * changes their mind later.
  *
- * Android/Chrome: captures the native beforeinstallprompt event and offers
- * a button that triggers it directly.
- * iOS Safari: has no such event, so a short "Share -> Add to Home Screen"
- * instruction is shown instead.
+ * Chromium browsers (installMethod "prompt"): a real Install button.
+ * Safari, iOS and macOS ("ios"/"macSafari"): a manual instruction, since
+ * neither has a JS API to trigger its own install flow.
+ * Everything else with no install mechanism at all ("bookmark"): a plain
+ * "bookmark this page" tip instead of showing nothing.
  */
 export function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const { installMethod, promptInstall } = useInstallPrompt();
   const [dismissed, setDismissed] = useState(wasDismissed);
-  // A pure function of navigator.userAgent, which never changes for the
-  // life of the page - a plain computed value, not state to sync in an effect.
-  const showIosHint = isIos();
 
-  useEffect(() => {
-    if (isStandalone() || wasDismissed()) return;
-
-    function handleBeforeInstallPrompt(event: Event) {
-      event.preventDefault();
-      setDeferredPrompt(event as BeforeInstallPromptEvent);
-    }
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-  }, []);
-
-  if (dismissed || isStandalone() || (!deferredPrompt && !showIosHint)) return null;
+  if (dismissed || !installMethod) return null;
 
   function close() {
     dismiss();
@@ -75,11 +49,8 @@ export function InstallPrompt() {
   }
 
   async function install() {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    setDeferredPrompt(null);
-    close();
+    const outcome = await promptInstall();
+    if (outcome !== "unavailable") close();
   }
 
   return (
@@ -88,17 +59,10 @@ export function InstallPrompt() {
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary">
           <DownloadIcon className="h-4 w-4" />
         </div>
-        <div className="min-w-0 flex-1 text-sm">
-          {deferredPrompt ? (
-            <p className="text-slate-700">Install Konexigo for quicker access.</p>
-          ) : (
-            <p className="text-slate-700">
-              Install Konexigo: tap <span className="font-medium">Share</span>, then{" "}
-              <span className="font-medium">Add to Home Screen</span>.
-            </p>
-          )}
+        <div className="min-w-0 flex-1 text-sm text-slate-700">
+          {installMethod === "prompt" ? "Install Konexigo for quicker access." : installHint(installMethod)}
         </div>
-        {deferredPrompt && (
+        {installMethod === "prompt" && (
           <button
             type="button"
             onClick={() => void install()}
