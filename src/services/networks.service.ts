@@ -321,6 +321,124 @@ export async function getNetworkMembershipsDetailed(
     .filter((row): row is NetworkMembershipWithPartner => row !== null);
 }
 
+/** Networks this partner owns or admins (active membership only) - the
+ * scope for everything an "owner" should be notified about below. */
+async function getManagedNetworks(partnerId: string): Promise<Network[]> {
+  const { data: managed, error: managedError } = await supabase
+    .from("network_partners")
+    .select("network_id")
+    .eq("partner_id", partnerId)
+    .eq("status", "active")
+    .in("role", ["owner", "admin"]);
+  if (managedError) throw managedError;
+
+  const networkIds = (managed ?? []).map((m) => m.network_id);
+  if (networkIds.length === 0) return [];
+
+  const { data: networks, error: networksError } = await supabase
+    .from("networks")
+    .select("*")
+    .in("id", networkIds);
+  if (networksError) throw networksError;
+  return networks ?? [];
+}
+
+/** Count of join requests awaiting this partner's approval, across every
+ * group they own or admin - drives the "My Groups" sidebar badge. */
+export async function getPendingRequestCountForPartner(partnerId: string): Promise<number> {
+  const managed = await getManagedNetworks(partnerId);
+  if (managed.length === 0) return 0;
+
+  const { count, error } = await supabase
+    .from("network_partners")
+    .select("*", { count: "exact", head: true })
+    .in(
+      "network_id",
+      managed.map((n) => n.id)
+    )
+    .eq("status", "requested");
+  if (error) throw error;
+  return count ?? 0;
+}
+
+export interface OwnerNotification {
+  /** "requested" needs the owner to act (approve/reject); "joined" is just
+   * an FYI for an open group someone joined instantly. */
+  type: "requested" | "joined";
+  network_id: string;
+  network_name: string;
+  partner_id: string;
+  partner_name: string;
+  at: string;
+}
+
+/** Everything an owner/admin should be notified about: pending join
+ * requests on their invite-only/request-to-join groups, and recent
+ * instant joins on their open groups. No dedicated notifications table -
+ * this is derived straight from network_partners each time it's read. */
+export async function getOwnerNotifications(partnerId: string): Promise<OwnerNotification[]> {
+  const managed = await getManagedNetworks(partnerId);
+  if (managed.length === 0) return [];
+
+  const networkById = new Map(managed.map((n) => [n.id, n]));
+  const networkIds = managed.map((n) => n.id);
+  const openNetworkIds = managed.filter((n) => n.join_mode === "open").map((n) => n.id);
+
+  const { data: requested, error: requestedError } = await supabase
+    .from("network_partners")
+    .select("network_id, partner_id, created_at")
+    .in("network_id", networkIds)
+    .eq("status", "requested")
+    .order("created_at", { ascending: false });
+  if (requestedError) throw requestedError;
+
+  let joined: { network_id: string; partner_id: string; created_at: string }[] = [];
+  if (openNetworkIds.length > 0) {
+    const { data, error } = await supabase
+      .from("network_partners")
+      .select("network_id, partner_id, created_at")
+      .in("network_id", openNetworkIds)
+      .eq("status", "active")
+      .neq("partner_id", partnerId)
+      .order("created_at", { ascending: false })
+      .limit(30);
+    if (error) throw error;
+    joined = data ?? [];
+  }
+
+  const rows = [...(requested ?? []), ...joined];
+  if (rows.length === 0) return [];
+
+  const partnerIds = Array.from(new Set(rows.map((r) => r.partner_id)));
+  const { data: partners, error: partnersError } = await supabase
+    .from("partners")
+    .select("id, company_name")
+    .in("id", partnerIds);
+  if (partnersError) throw partnersError;
+  const nameByPartnerId = new Map((partners ?? []).map((p) => [p.id, p.company_name as string]));
+
+  const items: OwnerNotification[] = [
+    ...(requested ?? []).map((r) => ({
+      type: "requested" as const,
+      network_id: r.network_id,
+      network_name: networkById.get(r.network_id)?.name ?? "",
+      partner_id: r.partner_id,
+      partner_name: nameByPartnerId.get(r.partner_id) ?? "A business",
+      at: r.created_at,
+    })),
+    ...joined.map((r) => ({
+      type: "joined" as const,
+      network_id: r.network_id,
+      network_name: networkById.get(r.network_id)?.name ?? "",
+      partner_id: r.partner_id,
+      partner_name: nameByPartnerId.get(r.partner_id) ?? "A business",
+      at: r.created_at,
+    })),
+  ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+
+  return items.slice(0, 30);
+}
+
 export interface NetworkMembershipWithNetwork extends NetworkMembership {
   networks: Network;
 }

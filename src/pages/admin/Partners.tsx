@@ -20,6 +20,7 @@ import {
   togglePartnerStatus,
   updatePartner,
 } from "../../services/partners.service";
+import { deleteAuthUser, deleteProfile, getAllPartnerProfiles } from "../../services/profiles.service";
 import type { Partner, PartnerFilters, PartnerInput } from "../../types";
 
 const PAGE_SIZE = 10;
@@ -40,6 +41,12 @@ export default function AdminPartners() {
   const partnersQuery = useQuery({
     queryKey: ["partners", filters],
     queryFn: () => getPartners(filters),
+  });
+  // So a deleted partner's own login (if any) can be fully removed too - see
+  // deleteMutation below.
+  const profilesQuery = useQuery({
+    queryKey: ["all-partner-profiles"],
+    queryFn: getAllPartnerProfiles,
   });
   const [formOpen, setFormOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
@@ -80,9 +87,29 @@ export default function AdminPartners() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deletePartner,
+    mutationFn: async (partner: Partner) => {
+      const matchedProfile = (profilesQuery.data ?? []).find((p) => p.partner_id === partner.id);
+      await deletePartner(partner.id);
+      if (matchedProfile) {
+        await deleteProfile(matchedProfile.id);
+        // Best-effort: also remove the Supabase Auth login, so they can sign
+        // up again with the same email. Doesn't fail the deletion if the
+        // Edge Function isn't deployed yet - the partner is already gone
+        // either way, this just surfaces a separate warning.
+        try {
+          await deleteAuthUser(matchedProfile.id);
+        } catch (error) {
+          toast.warning(
+            `Partner deleted, but couldn't remove their login: ${
+              error instanceof Error ? error.message : "unknown error"
+            }. They may need it removed manually in Supabase before they can sign up again.`
+          );
+        }
+      }
+    },
     onSuccess: () => {
       invalidatePartners();
+      queryClient.invalidateQueries({ queryKey: ["all-partner-profiles"] });
       toast.success("Partner deleted");
       setDeletingPartner(null);
     },
@@ -291,11 +318,11 @@ export default function AdminPartners() {
       <ConfirmDialog
         open={Boolean(deletingPartner)}
         title="Delete partner"
-        description={`Delete "${deletingPartner?.company_name}"? This also removes their referral links.`}
+        description={`Delete "${deletingPartner?.company_name}"? This also removes their referral links and, if they have a login, their account.`}
         confirmLabel="Delete"
         danger
         pending={deleteMutation.isPending}
-        onConfirm={() => deletingPartner && deleteMutation.mutate(deletingPartner.id)}
+        onConfirm={() => deletingPartner && deleteMutation.mutate(deletingPartner)}
         onCancel={() => setDeletingPartner(null)}
       />
     </div>

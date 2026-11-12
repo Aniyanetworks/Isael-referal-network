@@ -125,6 +125,15 @@ export function XIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function BellIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Base {...props}>
+      <path d="M6 8a6 6 0 1 1 12 0c0 3.5 1 5.5 1.5 6.5H4.5C5 13.5 6 11.5 6 8Z" />
+      <path d="M10 18.5a2 2 0 0 0 4 0" />
+    </Base>
+  );
+}
+
 export function MenuIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Base {...props}>

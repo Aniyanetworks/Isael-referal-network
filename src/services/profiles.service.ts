@@ -1,3 +1,4 @@
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabaseClient";
 import type { Profile } from "../types";
 
@@ -59,14 +60,33 @@ export async function unlinkProfile(profileId: string): Promise<Profile> {
   return data;
 }
 
-/**
- * Removes a partner signup's app record (rejects/cancels it). Only deletes
- * the profiles row - the underlying Supabase Auth user still exists, since
- * deleting that requires the service-role key, which must never run in the
- * browser. If they sign up again with the same email it'll say "already
- * registered"; that's an acceptable edge case for a rejected signup.
- */
+/** Removes a partner signup's app record (rejects/cancels it). */
 export async function deleteProfile(profileId: string): Promise<void> {
   const { error } = await supabase.from("profiles").delete().eq("id", profileId);
   if (error) throw error;
+}
+
+/**
+ * Deletes the underlying Supabase Auth user for a rejected/removed partner
+ * signup, via the delete-partner-auth-user Edge Function (holds the
+ * service-role key server-side, which must never run in the browser).
+ * Without this the person's login stays behind with no profile - they can't
+ * sign up again with the same email ("already registered") and can't log
+ * in either (no profile to load). profiles.id cascades from auth.users, so
+ * this also cleans up the profile row if one still exists.
+ */
+export async function deleteAuthUser(userId: string): Promise<void> {
+  const { error } = await supabase.functions.invoke("delete-partner-auth-user", {
+    body: { user_id: userId },
+  });
+  if (!error) return;
+
+  // FunctionsHttpError's own .message is just "Edge Function returned a
+  // non-2xx status code" - the function's actual { error: "..." } body (the
+  // useful part) is on .context, a raw Response that has to be read async.
+  if (error instanceof FunctionsHttpError) {
+    const body = await error.context.json().catch(() => null);
+    throw new Error(typeof body?.error === "string" ? body.error : error.message);
+  }
+  throw error;
 }

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { DashboardShell, type NavItem } from "./DashboardShell";
 import { useAuth } from "../../hooks/useAuth";
+import { getPendingRequestCountForPartner } from "../../services/networks.service";
 import { getNewLeadsCountForPartner } from "../../services/referralEvents.service";
 
 export function PartnerLayout() {
@@ -12,12 +13,17 @@ export function PartnerLayout() {
     queryFn: () => getNewLeadsCountForPartner(partnerId),
     enabled: Boolean(partnerId),
   });
+  const pendingRequestsQuery = useQuery({
+    queryKey: ["pending-request-count", partnerId],
+    queryFn: () => getPendingRequestCountForPartner(partnerId),
+    enabled: Boolean(partnerId),
+  });
 
   const navItems: NavItem[] = [
     { to: "/partner/dashboard", label: "Dashboard" },
     { to: "/partner/leads", label: "Leads", badge: newLeadsQuery.data },
     { to: "/partner/profile", label: "Profile" },
-    { to: "/partner/network", label: "My Groups" },
+    { to: "/partner/network", label: "My Groups", badge: pendingRequestsQuery.data },
   ];
 
   return <DashboardShell navItems={navItems} />;

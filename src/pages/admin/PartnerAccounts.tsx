@@ -8,6 +8,7 @@ import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { getCategories } from "../../services/categories.service";
 import { deletePartner, getPartners, updatePartner } from "../../services/partners.service";
 import {
+  deleteAuthUser,
   deleteProfile,
   getAllPartnerProfiles,
 } from "../../services/profiles.service";
@@ -59,6 +60,21 @@ export default function AdminPartnerAccounts() {
         deletePartner(partner.id),
         matchedProfile ? deleteProfile(matchedProfile.id) : Promise.resolve(),
       ]);
+      // Best-effort: also remove the Supabase Auth login itself, so they can
+      // sign up again with the same email. Doesn't fail the rejection if the
+      // Edge Function isn't deployed yet - the application is already gone
+      // either way, this just surfaces a separate warning.
+      if (matchedProfile) {
+        try {
+          await deleteAuthUser(matchedProfile.id);
+        } catch (error) {
+          toast.warning(
+            `Application rejected, but couldn't remove their login: ${
+              error instanceof Error ? error.message : "unknown error"
+            }. They may need it removed manually in Supabase before they can sign up again.`
+          );
+        }
+      }
     },
     onSuccess: () => {
       invalidatePartnerQueries(queryClient);

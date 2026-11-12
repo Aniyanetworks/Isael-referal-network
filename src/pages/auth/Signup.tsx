@@ -16,10 +16,10 @@ const signupSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   company_name: z.string().min(2, "Required"),
-  partner_name: z.string().min(2, "Required"),
+  partner_name: z.string(),
   phone: z.string().min(5, "Required"),
-  website: z.string().min(1, "Required"),
-  address: z.string().min(2, "Required"),
+  website: z.string(),
+  address: z.string(),
   category_id: z.string().min(1, "Select a category"),
   description: z.string(),
   logo_url: z.string(),
@@ -47,10 +47,28 @@ export default function Signup() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<SignupFormValues>({ resolver: zodResolver(signupSchema) });
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { description: "", logo_url: "", category_id: "", partner_name: "", website: "", address: "" },
+  });
 
   async function onSubmit(values: SignupFormValues) {
     setFormError(null);
+
+    function applicationPayload() {
+      return {
+        company_name: values.company_name,
+        partner_name: values.partner_name,
+        email: values.email,
+        phone: values.phone,
+        website: values.website,
+        address: values.address,
+        category_id: values.category_id,
+        description: values.description,
+        logo_url: values.logo_url,
+      };
+    }
+
     try {
       const session = await signUp(values.email, values.password);
 
@@ -63,22 +81,29 @@ export default function Signup() {
         return;
       }
 
-      await applyAsPartner({
-        company_name: values.company_name,
-        partner_name: values.partner_name,
-        email: values.email,
-        phone: values.phone,
-        website: values.website,
-        address: values.address,
-        category_id: values.category_id,
-        description: values.description,
-        logo_url: values.logo_url,
-      });
+      await applyAsPartner(applicationPayload());
       setSubmitted(true);
     } catch (error) {
       if (isAlreadyRegisteredError(error)) {
         try {
           const profile = await signIn(values.email, values.password);
+          // A previous attempt created the login but the application itself
+          // never went through (e.g. it failed partway) - this account is
+          // signed up but not yet linked to a business. Retry it now instead
+          // of just dropping them on a dashboard that says "approval
+          // pending" forever with no way to actually apply again.
+          if (profile && profile.role === "partner" && !profile.partner_id) {
+            try {
+              await applyAsPartner(applicationPayload());
+            } catch (retryError) {
+              setFormError(
+                retryError instanceof Error
+                  ? retryError.message
+                  : "Signed in, but couldn't submit your business details. Try again."
+              );
+              return;
+            }
+          }
           navigate(profile?.role === "admin" ? "/admin/dashboard" : "/partner/dashboard", {
             replace: true,
           });
@@ -128,16 +153,16 @@ export default function Signup() {
             <Field label="Company name" error={errors.company_name?.message}>
               <input className="form-input" {...register("company_name")} />
             </Field>
-            <Field label="Contact name" error={errors.partner_name?.message}>
+            <Field label="Contact name (optional)" error={errors.partner_name?.message}>
               <input className="form-input" {...register("partner_name")} />
             </Field>
             <Field label="Phone" error={errors.phone?.message}>
               <input className="form-input" {...register("phone")} />
             </Field>
-            <Field label="Website" error={errors.website?.message}>
+            <Field label="Website (optional)" error={errors.website?.message}>
               <input className="form-input" {...register("website")} />
             </Field>
-            <Field label="Address" error={errors.address?.message}>
+            <Field label="Address (optional)" error={errors.address?.message}>
               <input className="form-input" {...register("address")} />
             </Field>
             <Field label="Category" error={errors.category_id?.message}>
