@@ -180,11 +180,11 @@ function NotificationBell({ partnerId }: { partnerId: string }) {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
-          <div className="absolute right-0 top-full z-50 mt-2 w-80 max-w-[90vw] rounded-lg border border-zinc-200 bg-white shadow-lg">
+          <div className="fixed inset-x-3 top-16 z-50 max-h-[80vh] overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 sm:max-h-none">
             <div className="border-b border-zinc-100 px-3 py-2">
               <p className="text-sm font-semibold text-slate-900">Notifications</p>
             </div>
-            <div className="max-h-96 overflow-y-auto">
+            <div className="max-h-[calc(80vh-2.5rem)] overflow-y-auto sm:max-h-96">
               {notifications.length === 0 ? (
                 <p className="px-3 py-4 text-center text-sm text-zinc-400">Nothing new</p>
               ) : (

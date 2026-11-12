@@ -14,7 +14,7 @@ import { getLeadsForPartner, getReferralEventCountsAsReferrer } from "../../serv
 const SERIES_COLOR = "#079992";
 
 export default function PartnerDashboard() {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const partnerId = profile?.partner_id ?? "";
 
   const partnerQuery = useQuery({
@@ -58,18 +58,7 @@ export default function PartnerDashboard() {
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="truncate text-xl font-semibold text-slate-900">Welcome, {profile?.email}</h1>
-        </div>
-        <button
-          type="button"
-          onClick={() => void signOut()}
-          className="shrink-0 rounded-md border border-zinc-300 px-2 py-1 text-xs font-medium text-slate-700 sm:px-3 sm:py-1.5 sm:text-sm"
-        >
-          Log out
-        </button>
-      </div>
+      <h1 className="truncate text-xl font-semibold text-slate-900">Welcome, {profile?.email}</h1>
 
       {!partnerId && (
         <EmptyState

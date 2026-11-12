@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { DataTable, type DataTableColumn } from "../../components/ui/DataTable";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { ErrorState } from "../../components/ui/ErrorState";
 import { IconButton } from "../../components/ui/IconButton";
@@ -9,6 +10,7 @@ import { SearchIcon, TrashIcon } from "../../components/ui/icons";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
 import { Modal } from "../../components/ui/Modal";
 import { ReferralLinkActions } from "../../features/referralLinks/ReferralLinkActions";
+import { getCategories } from "../../services/categories.service";
 import { getPartners } from "../../services/partners.service";
 import {
   addPartnerToNetwork,
@@ -17,6 +19,7 @@ import {
   getNetworkMembers,
   removePartnerFromNetwork,
 } from "../../services/networks.service";
+import type { Partner } from "../../types";
 
 export default function AdminNetworkDetail() {
   const { networkId } = useParams<{ networkId: string }>();
@@ -34,6 +37,8 @@ export default function AdminNetworkDetail() {
     queryFn: () => getNetworkMembers(networkId ?? ""),
     enabled: Boolean(networkId),
   });
+  const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
+  const categoryNameById = new Map((categoriesQuery.data ?? []).map((c) => [c.id, c.name]));
 
   function invalidateMembers() {
     queryClient.invalidateQueries({ queryKey: ["network-members", networkId] });
@@ -64,20 +69,85 @@ export default function AdminNetworkDetail() {
   const members = membersQuery.data ?? [];
   const memberIds = new Set(members.map((m) => m.id));
 
+  const columns: DataTableColumn<Partner>[] = [
+    {
+      header: "Company",
+      accessor: (row) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={row.logo_url}
+            alt=""
+            className="h-8 w-8 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
+          />
+          <span className="font-medium text-slate-900">{row.company_name}</span>
+        </div>
+      ),
+    },
+    { header: "Category", accessor: (row) => categoryNameById.get(row.category_id) ?? "-" },
+    { header: "Contact", accessor: (row) => row.partner_name || "-" },
+    { header: "Phone", accessor: (row) => row.phone || "-" },
+    { header: "Email", accessor: (row) => row.email || "-" },
+    {
+      header: "Status",
+      accessor: (row) => (
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            row.status === "active"
+              ? "bg-brand-accent/20 text-green-700"
+              : row.status === "pending"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-zinc-100 text-zinc-500"
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              row.status === "active"
+                ? "bg-green-600"
+                : row.status === "pending"
+                  ? "bg-amber-500"
+                  : "bg-zinc-400"
+            }`}
+          />
+          {row.status}
+        </span>
+      ),
+    },
+    {
+      header: "Actions",
+      className: "text-right",
+      accessor: (row) => (
+        <div className="flex justify-end">
+          <IconButton
+            icon={<TrashIcon className="h-4 w-4" />}
+            label="Remove from network"
+            variant="danger"
+            disabled={removeMutation.isPending && removingId === row.id}
+            onClick={() => {
+              setRemovingId(row.id);
+              removeMutation.mutate(row.id);
+            }}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div>
       <Link to="/admin/networks" className="text-sm text-zinc-500 hover:text-brand-primary">
         &larr; Back to Networks
       </Link>
 
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900">{network.name}</h1>
-          <p className="mt-1 text-sm text-zinc-500">
-            {members.length} member{members.length === 1 ? "" : "s"}
-          </p>
+      <div className="mt-2 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">{network.name}</h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              {members.length} member{members.length === 1 ? "" : "s"}
+            </p>
+          </div>
+          <ReferralLinkActions url={buildNetworkUrl(network.slug)} fileName={network.slug} />
         </div>
-        <ReferralLinkActions url={buildNetworkUrl(network.slug)} fileName={network.slug} />
       </div>
 
       <div className="mt-6">
@@ -102,33 +172,7 @@ export default function AdminNetworkDetail() {
             />
           )}
           {!membersQuery.isLoading && !membersQuery.isError && members.length > 0 && (
-            <ul className="max-w-lg space-y-1 rounded-xl border border-zinc-200 bg-white p-2 shadow-sm">
-              {members.map((partner) => (
-                <li
-                  key={partner.id}
-                  className="flex items-center justify-between gap-3 rounded-md px-2 py-2 text-sm hover:bg-zinc-50"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <img
-                      src={partner.logo_url}
-                      alt=""
-                      className="h-6 w-6 shrink-0 rounded-full border border-zinc-200 bg-white object-contain"
-                    />
-                    <span className="truncate text-slate-700">{partner.company_name}</span>
-                  </div>
-                  <IconButton
-                    icon={<TrashIcon className="h-4 w-4" />}
-                    label="Remove from network"
-                    variant="danger"
-                    disabled={removeMutation.isPending && removingId === partner.id}
-                    onClick={() => {
-                      setRemovingId(partner.id);
-                      removeMutation.mutate(partner.id);
-                    }}
-                  />
-                </li>
-              ))}
-            </ul>
+            <DataTable columns={columns} data={members} rowKey={(row) => row.id} />
           )}
         </div>
       </div>

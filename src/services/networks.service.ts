@@ -361,6 +361,27 @@ export async function getPendingRequestCountForPartner(partnerId: string): Promi
   return count ?? 0;
 }
 
+/** Pending join-request count per network, for showing a hint directly on
+ * each group's card without expanding "Manage group" to find out. */
+export async function getPendingRequestCountsByNetwork(
+  networkIds: string[]
+): Promise<Record<string, number>> {
+  if (networkIds.length === 0) return {};
+
+  const { data, error } = await supabase
+    .from("network_partners")
+    .select("network_id")
+    .in("network_id", networkIds)
+    .eq("status", "requested");
+  if (error) throw error;
+
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    counts[row.network_id] = (counts[row.network_id] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export interface OwnerNotification {
   /** "requested" needs the owner to act (approve/reject); "joined" is just
    * an FYI for an open group someone joined instantly. */

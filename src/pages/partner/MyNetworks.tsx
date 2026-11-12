@@ -21,6 +21,7 @@ import {
   getMembershipsForPartner,
   getNetworkMembershipsDetailed,
   getNetworks,
+  getPendingRequestCountsByNetwork,
   inviteToNetwork,
   joinOpenNetwork,
   removeNetworkMemberSelfService,
@@ -53,6 +54,18 @@ export default function PartnerMyNetworks() {
   // So "Ask the owner to invite you" can show who that actually is.
   const partnersQuery = useQuery({ queryKey: ["partners-all"], queryFn: () => getPartners() });
   const partnerById = new Map((partnersQuery.data ?? []).map((p) => [p.id, p]));
+
+  // Hint badge on each owned/admin'd group's card, so a pending join
+  // request is visible without expanding "Manage group" to find it.
+  const managedNetworkIds = (membershipsQuery.data ?? [])
+    .filter((m) => m.status === "active" && (m.role === "owner" || m.role === "admin"))
+    .map((m) => m.network_id);
+  const pendingCountsQuery = useQuery({
+    queryKey: ["pending-request-counts-by-network", managedNetworkIds],
+    queryFn: () => getPendingRequestCountsByNetwork(managedNetworkIds),
+    enabled: managedNetworkIds.length > 0,
+  });
+  const pendingCountByNetwork = pendingCountsQuery.data ?? {};
 
   function invalidateMemberships() {
     queryClient.invalidateQueries({ queryKey: ["memberships-for-partner", partnerId] });
@@ -185,7 +198,12 @@ export default function PartnerMyNetworks() {
           ) : (
             <div className="space-y-4">
               {active.map((m) => (
-                <GroupCard key={m.network_id} membership={m} ownPartnerId={partnerId} />
+                <GroupCard
+                  key={m.network_id}
+                  membership={m}
+                  ownPartnerId={partnerId}
+                  pendingCount={pendingCountByNetwork[m.network_id] ?? 0}
+                />
               ))}
             </div>
           )}
@@ -309,9 +327,11 @@ function DiscoverCard({
 function GroupCard({
   membership,
   ownPartnerId,
+  pendingCount,
 }: {
   membership: NetworkMembershipWithNetwork;
   ownPartnerId: string;
+  pendingCount: number;
 }) {
   const network = membership.networks;
   const isManager = membership.role === "owner" || membership.role === "admin";
@@ -335,6 +355,9 @@ function GroupCard({
     queryClient.invalidateQueries({ queryKey: ["network-members-detailed", network.id] });
     queryClient.invalidateQueries({ queryKey: ["memberships-for-partner", ownPartnerId] });
     queryClient.invalidateQueries({ queryKey: ["network-member-counts"] });
+    queryClient.invalidateQueries({ queryKey: ["pending-request-counts-by-network"] });
+    queryClient.invalidateQueries({ queryKey: ["pending-request-count", ownPartnerId] });
+    queryClient.invalidateQueries({ queryKey: ["owner-notifications", ownPartnerId] });
   }
 
   const respondMutation = useMutation({
@@ -407,6 +430,11 @@ function GroupCard({
             <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-medium text-zinc-500">
               {JOIN_MODE_LABEL[network.join_mode]}
             </span>
+            {pendingCount > 0 && (
+              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                {pendingCount} join request{pendingCount > 1 ? "s" : ""} waiting
+              </span>
+            )}
           </div>
           {network.description && <p className="mt-1 text-xs text-zinc-500">{network.description}</p>}
         </div>
@@ -418,9 +446,14 @@ function GroupCard({
           <button
             type="button"
             onClick={() => setManaging((v) => !v)}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-brand-primary hover:text-brand-primary"
+            className="flex items-center gap-1.5 rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:border-brand-primary hover:text-brand-primary"
           >
             {managing ? "Hide management" : "Manage group"}
+            {!managing && pendingCount > 0 && (
+              <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold leading-none text-white">
+                {pendingCount > 9 ? "9+" : pendingCount}
+              </span>
+            )}
           </button>
         )}
         {membership.role === "owner" && (
