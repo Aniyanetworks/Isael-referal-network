@@ -20,12 +20,19 @@ import {
   getNetworks,
   updateNetwork,
 } from "../../services/networks.service";
+import { getPartners } from "../../services/partners.service";
 import type { Network } from "../../types";
 
 const networkSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
 });
 type NetworkFormValues = z.infer<typeof networkSchema>;
+
+const JOIN_MODE_LABEL: Record<Network["join_mode"], string> = {
+  invite_only: "Invite only",
+  request_to_join: "Request to join",
+  open: "Open",
+};
 
 export default function AdminNetworks() {
   const queryClient = useQueryClient();
@@ -34,6 +41,7 @@ export default function AdminNetworks() {
     queryKey: ["network-member-counts"],
     queryFn: getNetworkMemberCounts,
   });
+  const partnersQuery = useQuery({ queryKey: ["partners-all"], queryFn: () => getPartners() });
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingNetwork, setEditingNetwork] = useState<Network | null>(null);
@@ -114,8 +122,9 @@ export default function AdminNetworks() {
 
   const networks = networksQuery.data ?? [];
   const memberCounts = memberCountsQuery.data ?? new Map<string, number>();
-  const isLoading = networksQuery.isLoading || memberCountsQuery.isLoading;
-  const isError = networksQuery.isError || memberCountsQuery.isError;
+  const partnerById = new Map((partnersQuery.data ?? []).map((p) => [p.id, p]));
+  const isLoading = networksQuery.isLoading || memberCountsQuery.isLoading || partnersQuery.isLoading;
+  const isError = networksQuery.isError || memberCountsQuery.isError || partnersQuery.isError;
 
   const columns: DataTableColumn<Network>[] = [
     {
@@ -127,6 +136,28 @@ export default function AdminNetworks() {
         >
           {row.name}
         </Link>
+      ),
+    },
+    {
+      header: "Owner",
+      accessor: (row) => {
+        const owner = row.owner_partner_id ? partnerById.get(row.owner_partner_id) : undefined;
+        return owner ? owner.partner_name || owner.company_name : "-";
+      },
+    },
+    {
+      header: "Phone",
+      accessor: (row) => {
+        const owner = row.owner_partner_id ? partnerById.get(row.owner_partner_id) : undefined;
+        return owner?.phone || "-";
+      },
+    },
+    {
+      header: "Status",
+      accessor: (row) => (
+        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+          {JOIN_MODE_LABEL[row.join_mode]}
+        </span>
       ),
     },
     { header: "Members", accessor: (row) => memberCounts.get(row.id) ?? 0 },

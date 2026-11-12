@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
 import { EmptyState } from "../../components/ui/EmptyState";
@@ -29,7 +30,7 @@ import {
   updateNetwork,
   type NetworkMembershipWithNetwork,
 } from "../../services/networks.service";
-import type { Network, NetworkMembershipRole } from "../../types";
+import type { Network, NetworkMembershipRole, Partner } from "../../types";
 
 const JOIN_MODE_LABEL: Record<Network["join_mode"], string> = {
   invite_only: "Invite only",
@@ -49,6 +50,9 @@ export default function PartnerMyNetworks() {
     enabled: Boolean(partnerId),
   });
   const allNetworksQuery = useQuery({ queryKey: ["networks-all"], queryFn: getNetworks });
+  // So "Ask the owner to invite you" can show who that actually is.
+  const partnersQuery = useQuery({ queryKey: ["partners-all"], queryFn: () => getPartners() });
+  const partnerById = new Map((partnersQuery.data ?? []).map((p) => [p.id, p]));
 
   function invalidateMemberships() {
     queryClient.invalidateQueries({ queryKey: ["memberships-for-partner", partnerId] });
@@ -203,6 +207,7 @@ export default function PartnerMyNetworks() {
                 <DiscoverCard
                   key={network.id}
                   network={network}
+                  owner={network.owner_partner_id ? partnerById.get(network.owner_partner_id) : undefined}
                   requested={requested.some((r) => r.network_id === network.id)}
                   onJoin={() => joinMutation.mutate(network.id)}
                   onRequest={() => requestMutation.mutate(network.id)}
@@ -229,6 +234,7 @@ export default function PartnerMyNetworks() {
 
 function DiscoverCard({
   network,
+  owner,
   requested,
   onJoin,
   onRequest,
@@ -236,6 +242,7 @@ function DiscoverCard({
   requesting,
 }: {
   network: Network;
+  owner: Partner | undefined;
   requested: boolean;
   onJoin: () => void;
   onRequest: () => void;
@@ -279,9 +286,21 @@ function DiscoverCard({
               {requesting ? "Requesting..." : "Request to Join"}
             </button>
           ))}
-        {network.join_mode === "invite_only" && (
-          <span className="text-xs text-zinc-400">Ask the owner to invite you</span>
-        )}
+        {network.join_mode === "invite_only" &&
+          (owner ? (
+            <Link
+              to={`/business/${owner.slug}`}
+              className="block text-xs text-zinc-500 hover:text-brand-primary"
+            >
+              Ask the owner to invite you -{" "}
+              <span className="font-medium text-brand-primary underline">
+                {owner.partner_name || owner.company_name}
+              </span>
+              {owner.phone && <span className="text-zinc-400"> ({owner.phone})</span>}
+            </Link>
+          ) : (
+            <span className="text-xs text-zinc-400">Ask the owner to invite you</span>
+          ))}
       </div>
     </div>
   );

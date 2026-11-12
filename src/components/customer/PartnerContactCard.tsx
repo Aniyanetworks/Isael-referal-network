@@ -117,7 +117,7 @@ export function PartnerContactCard({
           <a
             href={`tel:${partner.phone}`}
             onClick={() => void track("contact_click", "call")}
-            className="rounded-md bg-brand-primary px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-brand-secondary"
+            className="whitespace-nowrap rounded-md bg-brand-primary px-2 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-brand-secondary sm:px-4"
           >
             Call Now
           </a>
@@ -128,7 +128,7 @@ export function PartnerContactCard({
             target="_blank"
             rel="noreferrer"
             onClick={() => void track("contact_click", "website")}
-            className="rounded-md border border-zinc-300 px-4 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="whitespace-nowrap rounded-md border border-zinc-300 px-2 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary sm:px-4"
           >
             Visit Website
           </a>
@@ -139,7 +139,7 @@ export function PartnerContactCard({
             target="_blank"
             rel="noreferrer"
             onClick={() => void track("contact_click", "directions")}
-            className="rounded-md border border-zinc-300 px-4 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary"
+            className="whitespace-nowrap rounded-md border border-zinc-300 px-2 py-2 text-center text-sm font-medium text-slate-700 transition-colors hover:border-brand-primary hover:text-brand-primary sm:px-4"
           >
             Get Directions
           </a>
@@ -148,7 +148,7 @@ export function PartnerContactCard({
         <button
           type="button"
           onClick={() => setRequestOpen(true)}
-          className="rounded-md border border-brand-primary px-4 py-2 text-center text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary hover:text-white"
+          className="col-span-2 whitespace-nowrap rounded-md border border-brand-primary px-2 py-2 text-center text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary hover:text-white sm:col-span-1 sm:px-4"
         >
           Request Service
         </button>

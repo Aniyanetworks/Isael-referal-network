@@ -50,10 +50,16 @@ export function ReferralLinkActions({
   return (
     <div className="flex flex-wrap items-center gap-4">
       <div className="shrink-0 rounded-md border border-zinc-200 p-2">
-        <QRCodeCanvas ref={canvasRef} value={url} size={80} level="M" />
+        <QRCodeCanvas ref={canvasRef} value={url} size={80} level="M" marginSize={4} />
       </div>
       <div style={{ display: "none" }} aria-hidden="true">
-        <QRCodeCanvas ref={downloadCanvasRef} value={url} size={1024} level="M" />
+        {/* marginSize=4 is the QR spec's minimum quiet zone - without it the
+            raw downloaded PNG has the pattern running edge to edge, which
+            most scanners refuse to read even though it scans fine straight
+            off this screen (the page's own padding around the small canvas
+            above fakes a quiet zone there, but canvas.toDataURL() only
+            captures the canvas itself). */}
+        <QRCodeCanvas ref={downloadCanvasRef} value={url} size={1024} level="M" marginSize={4} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-none">
         <input
