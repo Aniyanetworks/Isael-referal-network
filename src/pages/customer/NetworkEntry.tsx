@@ -336,14 +336,28 @@ function JoinNetworkCta({
   requesting: boolean;
 }) {
   if (!loggedIn) {
+    if (network.join_mode === "invite_only") {
+      return (
+        <p className="mt-3 text-xs text-zinc-400">
+          Own a business like these? Ask the group owner to invite you to join.
+        </p>
+      );
+    }
     return (
-      <p className="mt-3 text-xs text-zinc-400">
-        Own a business like these?{" "}
-        <Link to="/login" className="font-medium text-brand-primary underline">
-          Log in
-        </Link>{" "}
-        to join this group.
-      </p>
+      <div className="mt-4">
+        <Link
+          to={`/signup?network=${network.slug}`}
+          className="inline-block rounded-md bg-brand-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-secondary"
+        >
+          Join Now
+        </Link>
+        <p className="mt-2 text-xs text-zinc-400">
+          Already have an account?{" "}
+          <Link to="/login" className="font-medium text-brand-primary underline">
+            Log in
+          </Link>
+        </p>
+      </div>
     );
   }
 

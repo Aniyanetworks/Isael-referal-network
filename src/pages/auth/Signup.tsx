@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { AuthShell } from "../../components/layout/AuthShell";
@@ -10,6 +10,7 @@ import { SearchableSelect } from "../../components/ui/SearchableSelect";
 import { Field } from "../../features/partners/PartnerForm";
 import { useAuth } from "../../hooks/useAuth";
 import { getCategories } from "../../services/categories.service";
+import { getNetworkBySlug } from "../../services/networks.service";
 import { applyAsPartner } from "../../services/partnerApplications.service";
 
 const signupSchema = z.object({
@@ -34,6 +35,8 @@ function isAlreadyRegisteredError(error: unknown): boolean {
 export default function Signup() {
   const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const networkSlug = searchParams.get("network");
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [needsEmailConfirm, setNeedsEmailConfirm] = useState(false);
@@ -41,6 +44,21 @@ export default function Signup() {
 
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
   const categories = categoriesQuery.data ?? [];
+
+  // Carried from a group's public "Join Now" link - once an admin approves
+  // this application, they're auto-joined (or auto-requested) into this
+  // group. Only offered for open/request-to-join groups to begin with (see
+  // NetworkEntry's JoinNetworkCta), but double-check here too in case of a
+  // stale/hand-edited link.
+  const joinNetworkQuery = useQuery({
+    queryKey: ["public-network", networkSlug],
+    queryFn: () => getNetworkBySlug(networkSlug ?? ""),
+    enabled: Boolean(networkSlug),
+  });
+  const joinNetwork =
+    joinNetworkQuery.data && joinNetworkQuery.data.join_mode !== "invite_only"
+      ? joinNetworkQuery.data
+      : null;
 
   const {
     register,
@@ -66,6 +84,7 @@ export default function Signup() {
         category_id: values.category_id,
         description: values.description,
         logo_url: values.logo_url,
+        network_id: joinNetwork?.id,
       };
     }
 
@@ -127,6 +146,13 @@ export default function Signup() {
               ? "Confirm your email, then log in - an admin will finish setting up your application from there."
               : "An admin will review your business details shortly. Once approved, log in to see your referral link and QR code."}
           </p>
+          {joinNetwork && (
+            <p className="mt-2 text-sm text-slate-600">
+              Once approved, you'll automatically{" "}
+              {joinNetwork.join_mode === "open" ? "join" : "have a request sent to join"}{" "}
+              <span className="font-medium">{joinNetwork.name}</span> - no extra steps needed.
+            </p>
+          )}
           <Link className="mt-4 inline-block font-medium text-brand-primary underline" to="/login">
             Back to log in
           </Link>
@@ -142,6 +168,13 @@ export default function Signup() {
         <p className="mt-1 text-sm text-zinc-500">
           Tell us about your business - an admin will review and approve it before it goes live.
         </p>
+        {joinNetwork && (
+          <p className="mt-2 rounded-md bg-brand-primary/5 px-3 py-2 text-sm text-brand-primary">
+            Joining via <span className="font-medium">{joinNetwork.name}</span>'s invite link -
+            once approved, you'll{" "}
+            {joinNetwork.join_mode === "open" ? "be added to that group automatically" : "have a request sent to join that group"}.
+          </p>
+        )}
         <form className="mt-6 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Email" error={errors.email?.message}>

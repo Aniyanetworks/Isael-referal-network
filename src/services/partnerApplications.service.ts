@@ -11,6 +11,11 @@ export interface PartnerApplicationInput {
   category_id: string;
   description: string;
   logo_url: string;
+  /** Set when they signed up from a group's public "Join Now" link - once
+   * an admin approves the application, they're auto-joined (or, for a
+   * request-to-join group, auto-requested) into this group. See
+   * migration 0013. */
+  network_id?: string;
 }
 
 /**
@@ -30,6 +35,7 @@ export async function applyAsPartner(input: PartnerApplicationInput): Promise<Pa
     p_category_id: input.category_id,
     p_description: input.description,
     p_logo_url: input.logo_url,
+    p_network_id: input.network_id ?? null,
   });
   if (error) throw error;
   return data as Partner;
